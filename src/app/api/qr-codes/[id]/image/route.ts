@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Database } from '@/lib/db'
 import { r2Storage } from '@/lib/r2-storage'
 
-export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
 
 function getDB(): D1Database | null {

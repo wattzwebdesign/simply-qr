@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { QRCodeList } from '@/components/dashboard/QRCodeList'
 import { CreateQRCodeModal } from '@/components/dashboard/CreateQRCodeModal'
 
-export const runtime = 'edge'
 
 export default function DashboardPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)

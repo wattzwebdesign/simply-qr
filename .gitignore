@@ -39,6 +39,10 @@ next-env.d.ts
 .dev.vars
 wrangler.toml.backup
 
+# OpenNext
+.worker-next/
+.open-next/
+
 # IDE
 .idea/
 .vscode/

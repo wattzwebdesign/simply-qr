@@ -6,7 +6,6 @@ import { r2Storage } from '@/lib/r2-storage'
 import { Database } from '@/lib/db'
 import { CreateQRCodeInput } from '@/types'
 
-export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
 
 // This would be provided by Cloudflare Workers in production
