@@ -13,10 +13,8 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '4mb',
     },
-  },
-  // Disable static page generation to avoid build-time env var issues
-  generateBuildId: async () => {
-    return 'build-' + Date.now()
+    // Force all routes to use Edge Runtime
+    runtime: 'edge',
   },
 }
 
