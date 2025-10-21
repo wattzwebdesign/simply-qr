@@ -13,8 +13,6 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '4mb',
     },
-    // Force all routes to use Edge Runtime
-    runtime: 'edge',
   },
 }
 
