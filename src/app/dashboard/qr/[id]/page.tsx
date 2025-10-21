@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { QRCode, AnalyticsData } from '@/types'
 import { AnalyticsCharts } from '@/components/qr/AnalyticsCharts'
 
+export const runtime = 'edge'
+
 export default function QRCodeDetailPage() {
   const params = useParams()
   const router = useRouter()
