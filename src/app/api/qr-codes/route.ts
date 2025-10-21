@@ -6,6 +6,9 @@ import { r2Storage } from '@/lib/r2-storage'
 import { Database } from '@/lib/db'
 import { CreateQRCodeInput } from '@/types'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 // This would be provided by Cloudflare Workers in production
 // For development, we'll need to handle this differently
 function getDB(): D1Database | null {

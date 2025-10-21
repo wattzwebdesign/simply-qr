@@ -5,6 +5,9 @@ import { r2Storage } from '@/lib/r2-storage'
 import { UpdateQRCodeInput } from '@/types'
 import { generateQRCode } from '@/lib/qr-generator'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 function getDB(): D1Database | null {
   return null
 }
