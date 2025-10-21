@@ -3,6 +3,9 @@ import { nanoid } from 'nanoid'
 import { UAParser } from 'ua-parser-js'
 import { Database } from '@/lib/db'
 
+export const runtime = 'edge'
+export const dynamic = 'force-dynamic'
+
 function getDB(): D1Database | null {
   return null
 }

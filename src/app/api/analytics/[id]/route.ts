@@ -2,6 +2,9 @@ import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { Database } from '@/lib/db'
 
+export const runtime = 'edge'
+export const dynamic = 'force-dynamic'
+
 function getDB(): D1Database | null {
   return null
 }
