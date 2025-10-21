@@ -5,6 +5,8 @@ import '../styles/globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Simply QR - QR Code Management Platform',
   description: 'Generate, manage, and track QR codes with advanced analytics',

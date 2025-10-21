@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -15,9 +14,10 @@ const nextConfig = {
       bodySizeLimit: '4mb',
     },
   },
-  // Skip build-time environment variable validation for Cloudflare Pages
-  // as env vars are injected at runtime, not build time
-  env: {},
+  // Disable static page generation to avoid build-time env var issues
+  generateBuildId: async () => {
+    return 'build-' + Date.now()
+  },
 }
 
 module.exports = nextConfig
