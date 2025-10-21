@@ -14,6 +14,9 @@ const nextConfig = {
       bodySizeLimit: '4mb',
     },
   },
+  // Skip middleware and edge runtime validation for internal Next.js routes
+  skipTrailingSlashRedirect: true,
+  skipMiddlewareUrlNormalize: true,
 }
 
 module.exports = nextConfig

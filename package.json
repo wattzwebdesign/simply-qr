@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && rm -rf .next/cache",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "cf:d1:create": "wrangler d1 create simply-qr-db",
@@ -37,7 +37,7 @@
     "eslint": "^9.38.0",
     "eslint-config-next": "^15.5.6",
     "nanoid": "^5.1.6",
-    "next": "^15.5.6",
+    "next": "15.5.2",
     "postcss": "^8.5.6",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
