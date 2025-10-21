@@ -1,5 +1,3 @@
-import Link from 'next/link'
-
 export const runtime = 'edge'
 
 export default function NotFound() {
@@ -11,12 +9,12 @@ export default function NotFound() {
         <p className="text-gray-600 mb-8">
           The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
-        <Link
+        <a
           href="/"
-          className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition inline-block"
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition inline-block"
         >
           Go Home
-        </Link>
+        </a>
       </div>
     </div>
   )
