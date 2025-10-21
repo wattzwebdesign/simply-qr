@@ -36,3 +36,6 @@ coverage
 
 # Claude
 .claude
+
+# Cloudflare
+.wrangler
