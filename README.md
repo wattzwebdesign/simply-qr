@@ -4,269 +4,143 @@ A full-stack QR code creation and management system with analytics tracking.
 
 ## Features
 
-- **User Authentication** - Secure login and registration with JWT tokens
-- **QR Code Creation** - Generate custom QR codes with color and size options
-- **QR Code Management** - Edit, delete, and activate/deactivate QR codes
-- **Analytics Tracking** - Track scans, timestamps, IP addresses, and more
-- **Redirect Service** - Short URLs that redirect to target destinations
-- **Responsive UI** - Mobile-friendly Vue.js interface
+- 🔐 **User Authentication** - Secure login/registration with JWT
+- 🎨 **Custom QR Codes** - Customize colors and sizes
+- 📊 **Analytics Tracking** - Track scans with IP, timestamp, user agent
+- 🔗 **Short URLs** - `/r/{code}` redirects to target URLs
+- 📱 **Responsive UI** - Mobile-friendly Vue.js interface
 
 ## Tech Stack
 
-### Backend
-- **Node.js** + **Express.js** - REST API server
-- **Prisma ORM** - Database abstraction and migrations
-- **MySQL** - Database
-- **bcrypt** - Password hashing
-- **JWT** - Authentication tokens
-- **qrcode** - QR code generation
+**Backend:** Node.js + Express + Prisma + MySQL
+**Frontend:** Vue.js 3 + Vite + Pinia + Vue Router
+**Deployment:** PM2 + Apache + PHP proxy
 
-### Frontend
-- **Vue.js 3** - Frontend framework
-- **Vue Router** - Client-side routing
-- **Pinia** - State management
-- **Vite** - Build tool
-- **Axios** - HTTP client
+## Quick Start
 
-### Deployment
-- **PM2** - Process management
-- **Apache/.htaccess** - Web server routing
-- **PHP proxy** - Backend API routing
+### Local Development
+
+```bash
+# 1. Install backend
+cd backend
+npm install
+cp .env.example .env
+# Edit .env with your database credentials
+npx prisma generate
+npx prisma migrate dev
+npm run dev
+
+# 2. Install frontend (new terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+Visit http://localhost:5173
+
+### Production Deployment (xCloud)
+
+```bash
+# On server - create .env first
+bash setup-env.sh
+
+# Deploy
+bash .xcloud-deploy.sh
+
+# Verify
+pm2 status
+curl http://localhost:3000/health
+```
+
+## Environment Setup
+
+### Backend `.env` file:
+
+```env
+DATABASE_URL="mysql://u167824_bubbling:jciCsq8SSFUGS98f@localhost:3306/s167824_bubbling"
+JWT_SECRET="your-secure-secret-here"
+PORT=3000
+NODE_ENV=production
+```
+
+Generate secure JWT_SECRET:
+```bash
+openssl rand -base64 32
+```
+
+## Database Schema
+
+- **User** - id, username, email, password (hashed), isAdmin
+- **QRCode** - id, userId, name, url, qrCodeData, shortCode, colors, size, scanCount, isActive
+- **Scan** - id, qrCodeId, scannedAt, ipAddress, userAgent, country, city
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register user
+- `POST /api/auth/login` - Login user
+- `GET /api/auth/me` - Get profile
+
+### QR Codes (authenticated)
+- `POST /api/qrcodes` - Create QR code
+- `GET /api/qrcodes` - List QR codes
+- `GET /api/qrcodes/:id` - Get details
+- `PUT /api/qrcodes/:id` - Update QR code
+- `DELETE /api/qrcodes/:id` - Delete QR code
+- `GET /api/qrcodes/:id/analytics` - Get analytics
+
+### Redirects (public)
+- `GET /r/:shortCode` - Redirect & track scan
+
+## Troubleshooting
+
+### Backend won't start?
+```bash
+pm2 logs simply-qr-backend --err
+cd backend && npx prisma db pull
+```
+
+### Frontend build fails?
+```bash
+cd frontend
+rm -rf node_modules
+npm install
+npm run build
+```
+
+### Database connection error?
+```bash
+# Test connection
+mysql -u u167824_bubbling -p s167824_bubbling
+```
+
+## PM2 Commands
+
+```bash
+pm2 status                     # Check status
+pm2 logs simply-qr-backend    # View logs
+pm2 restart simply-qr-backend # Restart
+pm2 monit                      # Monitor
+```
 
 ## Project Structure
 
 ```
 simply-qr/
-├── backend/                    # Node.js backend
-│   ├── prisma/                # Database schema & migrations
-│   ├── routes/                # API endpoints
-│   ├── middleware/            # Auth middleware
-│   ├── services/              # Business logic
-│   ├── server.js              # Express app entry
-│   └── package.json
-│
-├── frontend/                   # Vue.js frontend
-│   ├── src/
-│   │   ├── views/            # Page components
-│   │   ├── components/       # Reusable components
-│   │   ├── stores/           # Pinia stores
-│   │   ├── services/         # API client
-│   │   └── router/           # Vue Router config
-│   ├── public/               # Static assets
-│   └── package.json
-│
-├── .htaccess                   # Apache config
-├── api.php                     # PHP proxy
-├── ecosystem.config.js         # PM2 config
-└── .xcloud-deploy.sh          # Deployment script
+├── backend/           # Node.js + Express API
+├── frontend/          # Vue.js 3 SPA
+├── .htaccess         # Apache routing
+├── api.php           # PHP proxy
+├── ecosystem.config.js  # PM2 config
+└── .xcloud-deploy.sh   # Deployment script
 ```
 
-## Local Development Setup
+## Support
 
-### Prerequisites
-- Node.js 18+
-- MySQL database
-- npm or yarn
-
-### Backend Setup
-
-1. Navigate to backend directory:
-```bash
-cd backend
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create `.env` file:
-```bash
-cp .env.example .env
-```
-
-4. Update `.env` with your database credentials:
-```
-DATABASE_URL="mysql://user:password@localhost:3306/database"
-JWT_SECRET="your-secret-key-here"
-PORT=3000
-NODE_ENV=development
-```
-
-5. Generate Prisma client:
-```bash
-npx prisma generate
-```
-
-6. Run database migrations:
-```bash
-npx prisma migrate dev
-```
-
-7. Start backend server:
-```bash
-npm run dev
-```
-
-Backend will run on http://localhost:3000
-
-### Frontend Setup
-
-1. Navigate to frontend directory:
-```bash
-cd frontend
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create `.env` file:
-```bash
-cp .env.example .env
-```
-
-4. Start development server:
-```bash
-npm run dev
-```
-
-Frontend will run on http://localhost:5173
-
-## Database Schema
-
-### User
-- id (UUID)
-- username (unique)
-- email (unique)
-- password (hashed)
-- isAdmin (boolean)
-- createdAt, updatedAt
-
-### QRCode
-- id (UUID)
-- userId (foreign key)
-- name
-- url (target URL)
-- qrCodeData (base64 image)
-- shortCode (unique tracking code)
-- backgroundColor, foregroundColor, size
-- scanCount, lastScanned
-- isActive
-- createdAt, updatedAt
-
-### Scan
-- id (UUID)
-- qrCodeId (foreign key)
-- scannedAt
-- ipAddress, userAgent, referer
-- country, city
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user profile
-
-### QR Codes (Authenticated)
-- `POST /api/qrcodes` - Create QR code
-- `GET /api/qrcodes` - List QR codes (with pagination & search)
-- `GET /api/qrcodes/:id` - Get QR code details
-- `PUT /api/qrcodes/:id` - Update QR code
-- `DELETE /api/qrcodes/:id` - Delete QR code
-- `GET /api/qrcodes/:id/analytics` - Get QR code analytics
-
-### Redirect (Public)
-- `GET /r/:shortCode` - Redirect to target URL & track scan
-
-## Production Deployment (xCloud)
-
-### Automatic Deployment
-
-1. Ensure `.env` file exists in `backend/` directory with production credentials
-
-2. Push code to Git repository
-
-3. xCloud will automatically run `.xcloud-deploy.sh` which:
-   - Installs dependencies
-   - Generates Prisma client
-   - Runs database migrations
-   - Builds frontend
-   - Copies built files to root
-   - Starts backend with PM2
-
-### Manual Deployment
-
-1. SSH into your xCloud server
-
-2. Navigate to project directory
-
-3. Run deployment script:
-```bash
-bash .xcloud-deploy.sh
-```
-
-### PM2 Commands
-
-Check backend status:
-```bash
-pm2 status
-```
-
-View logs:
-```bash
-pm2 logs simply-qr-backend
-```
-
-Restart backend:
-```bash
-pm2 restart simply-qr-backend
-```
-
-Monitor processes:
-```bash
-pm2 monit
-```
-
-## Environment Variables
-
-### Backend (.env)
-
-```env
-DATABASE_URL="mysql://user:password@host:3306/database"
-JWT_SECRET="your-secret-key"
-PORT=3000
-NODE_ENV=production
-```
-
-### Frontend (.env)
-
-Development:
-```env
-VITE_API_BASE_URL=http://localhost:3000
-```
-
-Production (auto-detected):
-```env
-VITE_API_BASE_URL=https://yourdomain.com
-```
-
-## Security Features
-
-- Password hashing with bcrypt (10 rounds)
-- JWT-based authentication (7-day expiration)
-- Protected API routes with middleware
-- Input validation and sanitization
-- CORS configuration
-- Security headers (X-Content-Type-Options, X-Frame-Options, etc.)
-- SQL injection protection via Prisma ORM
+- Check logs: `pm2 logs simply-qr-backend`
+- Test API: `curl http://localhost:3000/health`
+- View errors: `tail -f /var/log/apache2/error.log`
 
 ## License
 
 ISC
-
-## Support
-
-For issues or questions, please create an issue in the repository.
