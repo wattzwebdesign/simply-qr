@@ -40,11 +40,24 @@ Visit http://localhost:5173
 
 ### Production Deployment (xCloud)
 
-```bash
-# On server - create .env first
-bash setup-env.sh
+**Option 1: Backend-Only Deploy (if frontend build fails on server)**
 
-# Deploy
+```bash
+# On server - deploy backend only
+bash setup-env.sh
+bash .xcloud-deploy-backend-only.sh
+
+# Locally - build frontend
+bash build-frontend-locally.sh
+
+# Upload frontend/dist/* files to xCloud root via FTP/SFTP
+```
+
+**Option 2: Full Auto Deploy**
+
+```bash
+# On server
+bash setup-env.sh
 bash .xcloud-deploy.sh
 
 # Verify

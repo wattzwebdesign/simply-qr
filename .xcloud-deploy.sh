@@ -36,17 +36,17 @@ npx prisma migrate deploy
 
 cd ..
 
-# Clean frontend node_modules if corrupted
-echo "Cleaning frontend dependencies..."
-cd frontend
-if [ -d "node_modules" ]; then
-    echo "Removing corrupted node_modules..."
-    rm -rf node_modules
-fi
-
-# Install frontend dependencies
+# Install/reinstall frontend dependencies
 echo "Installing frontend dependencies..."
-npm install
+cd frontend
+
+# Kill any processes that might be holding files
+pkill -f "esbuild" || true
+pkill -f "vite" || true
+sleep 2
+
+# Clean install with force flag
+npm install --force
 
 # Build frontend for production
 echo "Building frontend..."
