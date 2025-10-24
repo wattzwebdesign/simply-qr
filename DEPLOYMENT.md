@@ -1,258 +1,327 @@
-# Deployment Guide
+# Deployment Guide for Simply QR
 
-This guide will help you deploy Simply QR to Cloudflare Pages.
+## xCloud Deployment Instructions
 
-## Prerequisites
+### Prerequisites
 
-1. A Cloudflare account ([Sign up here](https://dash.cloudflare.com/sign-up))
-2. A Clerk account ([Sign up here](https://clerk.com))
-3. Wrangler CLI installed globally: `npm install -g wrangler`
-4. Git repository connected to GitHub
+1. **xCloud Account** with:
+   - MySQL database access
+   - Node.js support
+   - PM2 installed
+   - Git deployment enabled
 
-## Step-by-Step Deployment
+2. **Database Credentials**:
+   ```
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_DATABASE=s167824_bubbling
+   DB_USERNAME=u167824_bubbling
+   DB_PASSWORD=jciCsq8SSFUGS98f
+   ```
 
-### 1. Set up Clerk Authentication
+### Step 1: Prepare Backend Environment
 
-1. Go to [Clerk Dashboard](https://dashboard.clerk.com)
-2. Create a new application
-3. Copy your API keys:
-   - Publishable Key (starts with `pk_`)
-   - Secret Key (starts with `sk_`)
-4. Configure your application URLs in Clerk:
-   - Development: `http://localhost:3000`
-   - Production: `https://your-domain.pages.dev`
+1. Create `backend/.env` file on the server with production settings:
 
-### 2. Authenticate with Cloudflare
-
-\`\`\`bash
-wrangler login
-\`\`\`
-
-This will open a browser window to authenticate.
-
-### 3. Create Cloudflare D1 Database
-
-\`\`\`bash
-npm run cf:d1:create
-\`\`\`
-
-Copy the database ID from the output. It will look like:
-\`\`\`
-[[d1_databases]]
-binding = "DB"
-database_name = "simply-qr-db"
-database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-\`\`\`
-
-Update the \`database_id\` in \`wrangler.toml\` with this value.
-
-### 4. Run Database Migration
-
-\`\`\`bash
-wrangler d1 execute simply-qr-db --file=./database/schema.sql
-\`\`\`
-
-For production database:
-\`\`\`bash
-wrangler d1 execute simply-qr-db --remote --file=./database/schema.sql
-\`\`\`
-
-### 5. Create R2 Bucket
-
-\`\`\`bash
-npm run cf:r2:create
-\`\`\`
-
-Or manually:
-\`\`\`bash
-wrangler r2 bucket create simply-qr
-\`\`\`
-
-### 6. Generate R2 API Tokens
-
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
-2. Navigate to R2 > Manage R2 API Tokens
-3. Click "Create API Token"
-4. Give it a name (e.g., "simply-qr-token")
-5. Set permissions to "Object Read & Write"
-6. Copy the Access Key ID and Secret Access Key
-
-### 7. Get Your Cloudflare Account ID
-
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
-2. Select any domain or go to Workers & Pages
-3. Your Account ID is shown in the right sidebar
-
-### 8. Configure Environment Variables
-
-Create a \`.env.production\` file or set these in your Cloudflare Pages dashboard:
-
-\`\`\`env
-# Clerk
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_xxxxx
-CLERK_SECRET_KEY=sk_live_xxxxx
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
-
-# Cloudflare
-R2_BUCKET_NAME=simply-qr
-R2_ACCESS_KEY_ID=xxxxx
-R2_SECRET_ACCESS_KEY=xxxxx
-R2_ACCOUNT_ID=xxxxx
-R2_PUBLIC_DOMAIN=pub-xxxxx.r2.dev
-CLOUDFLARE_ACCOUNT_ID=xxxxx
-CLOUDFLARE_API_TOKEN=xxxxx
-
-# App
-NEXT_PUBLIC_APP_URL=https://your-domain.pages.dev
+```env
+DATABASE_URL="mysql://u167824_bubbling:jciCsq8SSFUGS98f@localhost:3306/s167824_bubbling"
+JWT_SECRET="GENERATE_A_SECURE_SECRET_HERE"
+PORT=3000
 NODE_ENV=production
-\`\`\`
+```
 
-### 9. Deploy to Cloudflare Pages
+**Important**: Generate a secure JWT_SECRET:
+```bash
+openssl rand -base64 32
+```
 
-#### Option A: Deploy via Wrangler
+### Step 2: Initial Database Setup
 
-\`\`\`bash
+The deployment script will run migrations automatically, but you can manually run them if needed:
+
+```bash
+cd backend
+npx prisma migrate deploy
+```
+
+### Step 3: Configure Git Deployment
+
+1. In xCloud, enable Git auto-deploy
+2. Set the deployment script to: `.xcloud-deploy.sh`
+3. Push your code to the repository
+
+### Step 4: Verify Deployment
+
+1. Check PM2 status:
+```bash
+pm2 status
+```
+
+You should see `simply-qr-backend` running.
+
+2. View logs:
+```bash
+pm2 logs simply-qr-backend
+```
+
+3. Test API health:
+```bash
+curl http://localhost:3000/health
+```
+
+Should return: `{"status":"ok","timestamp":"..."}`
+
+### Step 5: Test Frontend
+
+1. Navigate to your domain in a browser
+2. You should see the Simply QR login page
+3. Try registering a new account
+4. Create a test QR code
+
+### Step 6: Create First Admin User (Optional)
+
+To create an admin user, update the database directly:
+
+```sql
+UPDATE User SET isAdmin = true WHERE username = 'your-username';
+```
+
+## Manual Deployment
+
+If automatic deployment doesn't work, you can deploy manually:
+
+```bash
+# 1. Install backend dependencies
+cd backend
+npm install --production
+npx prisma generate
+npx prisma migrate deploy
+cd ..
+
+# 2. Build frontend
+cd frontend
+npm install
 npm run build
-npm run deploy
-\`\`\`
+cd ..
 
-#### Option B: Deploy via GitHub Integration
+# 3. Copy frontend build to root
+cp -r frontend/dist/* .
 
-1. Go to [Cloudflare Pages Dashboard](https://dash.cloudflare.com/pages)
-2. Click "Create a project"
-3. Connect your GitHub repository
-4. Configure build settings:
-   - **Build command**: \`npm run pages:build\`
-   - **Build output directory**: \`.vercel/output/static\`
-   - **Root directory**: \`/\`
-5. Add environment variables in the dashboard
-6. Click "Save and Deploy"
+# 4. Create logs directory
+mkdir -p backend/logs
 
-### 10. Configure Custom Domain (Optional)
-
-1. Go to your Cloudflare Pages project
-2. Navigate to "Custom domains"
-3. Click "Set up a custom domain"
-4. Follow the instructions to add your domain
-5. Update your Clerk application URLs with the new domain
-
-### 11. Set up D1 and R2 Bindings in Pages
-
-If you deployed via GitHub, you need to manually configure bindings:
-
-1. Go to your Pages project settings
-2. Navigate to "Functions" > "Bindings"
-3. Add D1 Database binding:
-   - Variable name: \`DB\`
-   - D1 database: Select your \`simply-qr-db\`
-4. Add R2 Bucket binding:
-   - Variable name: \`QR_BUCKET\`
-   - R2 bucket: Select your \`simply-qr\` bucket
-
-## Post-Deployment
-
-### Verify Deployment
-
-1. Visit your deployed URL
-2. Test sign-up/sign-in functionality
-3. Create a test QR code
-4. Test the short URL redirect
-5. Verify analytics are tracking
-
-### Monitor Application
-
-- Check Cloudflare Pages logs for errors
-- Monitor D1 database usage
-- Monitor R2 storage usage
-- Set up Cloudflare Analytics
+# 5. Start with PM2
+pm2 delete simply-qr-backend 2>/dev/null || true
+pm2 start ecosystem.config.js
+pm2 save
+```
 
 ## Troubleshooting
 
-### Issue: Database not found
+### Backend Not Starting
 
-**Solution**: Ensure D1 binding is correctly configured in \`wrangler.toml\` and in your Pages project settings.
+1. Check logs:
+```bash
+pm2 logs simply-qr-backend --err
+```
 
-### Issue: R2 images not loading
+2. Check if port 3000 is available:
+```bash
+netstat -tuln | grep 3000
+```
 
-**Solution**:
-1. Check R2 bucket permissions
-2. Verify R2 binding is correct
-3. Ensure API tokens have correct permissions
-4. Check if R2 public domain is configured
+3. Verify database connection:
+```bash
+cd backend
+npx prisma db pull
+```
 
-### Issue: Authentication not working
+### API Not Responding
 
-**Solution**:
-1. Verify Clerk API keys are correct
-2. Check that redirect URLs are configured in Clerk dashboard
-3. Ensure environment variables are set in production
+1. Check if backend is running:
+```bash
+pm2 status
+curl http://localhost:3000/health
+```
 
-### Issue: Build fails
+2. Check Apache/Nginx logs for proxy errors
 
-**Solution**:
-1. Check Node.js version (should be 18+)
-2. Clear \`.next\` and \`node_modules\` directories
-3. Run \`npm install\` again
-4. Check for TypeScript errors
+3. Verify `.htaccess` file is in the root directory
 
-## Updating the Application
+4. Test PHP proxy directly:
+```bash
+curl http://yourdomain.com/api.php/health
+```
 
-### Update Code
+### Database Migration Errors
 
-\`\`\`bash
-git pull origin main
-npm install
-\`\`\`
+1. Check database credentials in `backend/.env`
 
-### Run Database Migrations
+2. Manually run migrations:
+```bash
+cd backend
+npx prisma migrate deploy --schema=./prisma/schema.prisma
+```
 
-If you've updated the schema:
+3. If migrations fail, check MySQL user permissions:
+```sql
+SHOW GRANTS FOR 'u167824_bubbling'@'localhost';
+```
 
-\`\`\`bash
-wrangler d1 execute simply-qr-db --remote --file=./database/schema.sql
-\`\`\`
+### Frontend Not Loading
 
-### Redeploy
+1. Verify files are in root directory:
+```bash
+ls -la index.html assets/
+```
 
-\`\`\`bash
-npm run deploy
-\`\`\`
+2. Check `.htaccess` rewrite rules are working:
+```bash
+# Create test file
+echo "test" > test.txt
 
-Or push to GitHub if using automatic deployments.
+# Try accessing it
+curl http://yourdomain.com/test.txt
+```
+
+3. Check Apache mod_rewrite is enabled
+
+### QR Code Redirects Not Working
+
+1. Test redirect endpoint:
+```bash
+curl -I http://yourdomain.com/r/test123
+```
+
+2. Check `.htaccess` has redirect rules for `/r/*`
+
+3. Verify `api.php` is routing correctly
+
+## PM2 Commands Reference
+
+```bash
+# View status
+pm2 status
+
+# View logs
+pm2 logs simply-qr-backend
+
+# Restart
+pm2 restart simply-qr-backend
+
+# Stop
+pm2 stop simply-qr-backend
+
+# Start
+pm2 start simply-qr-backend
+
+# Monitor
+pm2 monit
+
+# View detailed info
+pm2 show simply-qr-backend
+
+# Save PM2 process list (auto-start on reboot)
+pm2 save
+pm2 startup
+```
 
 ## Performance Optimization
 
-### Enable Cloudflare CDN
+### Enable Gzip Compression
 
-1. Set up a custom domain
-2. Configure caching rules in Cloudflare
-3. Enable Auto Minify for JS, CSS, HTML
+Add to `.htaccess`:
+```apache
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json
+</IfModule>
+```
 
-### Configure Cache Headers
+### Enable Browser Caching
 
-QR code images are already configured with long cache headers:
-\`\`\`
-Cache-Control: public, max-age=31536000, immutable
-\`\`\`
+Already included in `.htaccess`:
+```apache
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
+```
 
-### Use Preview Deployments
+### Database Optimization
 
-Cloudflare Pages creates preview deployments for each branch and PR automatically. Use these to test changes before merging to production.
+Add indexes for frequently queried fields:
+```sql
+CREATE INDEX idx_qrcode_userid ON QRCode(userId);
+CREATE INDEX idx_qrcode_shortcode ON QRCode(shortCode);
+CREATE INDEX idx_scan_qrcodeid ON Scan(qrCodeId);
+```
 
-## Security Best Practices
+## Security Checklist
 
-1. **Never commit secrets**: Always use environment variables
-2. **Rotate API keys regularly**: Update Clerk and Cloudflare credentials periodically
-3. **Enable rate limiting**: Use Cloudflare rate limiting rules
-4. **Monitor logs**: Check for suspicious activity
-5. **Keep dependencies updated**: Run \`npm audit\` and \`npm update\` regularly
+- [ ] Change default JWT_SECRET to a secure random string
+- [ ] Ensure database credentials are not committed to Git
+- [ ] Verify `.env` files are in `.gitignore`
+- [ ] Enable HTTPS (SSL certificate)
+- [ ] Set strong MySQL password
+- [ ] Disable directory listing in Apache
+- [ ] Keep Node.js and npm packages updated
+- [ ] Set up regular database backups
+- [ ] Configure firewall rules (only allow ports 80, 443, 22)
+
+## Monitoring
+
+### Set Up PM2 Monitoring
+
+```bash
+# Install PM2 logs rotation
+pm2 install pm2-logrotate
+
+# Set log rotation to 7 days
+pm2 set pm2-logrotate:max_size 10M
+pm2 set pm2-logrotate:retain 7
+```
+
+### Database Backups
+
+Set up a cron job for daily backups:
+
+```bash
+# Add to crontab
+0 2 * * * mysqldump -u u167824_bubbling -p'jciCsq8SSFUGS98f' s167824_bubbling > /backup/simplyqr_$(date +\%Y\%m\%d).sql
+```
+
+## Updating the Application
+
+1. Pull latest code:
+```bash
+git pull origin main
+```
+
+2. Run deployment script:
+```bash
+bash .xcloud-deploy.sh
+```
+
+Or manually:
+```bash
+cd backend
+npm install --production
+npx prisma generate
+npx prisma migrate deploy
+cd ../frontend
+npm install
+npm run build
+cd ..
+cp -r frontend/dist/* .
+pm2 restart simply-qr-backend
+```
 
 ## Support
 
-For issues specific to:
-- **Cloudflare**: [Cloudflare Community](https://community.cloudflare.com/)
-- **Clerk**: [Clerk Support](https://clerk.com/support)
-- **This Application**: [GitHub Issues](https://github.com/wattzwebdesign/simply-qr/issues)
+For deployment issues:
+1. Check PM2 logs: `pm2 logs`
+2. Check Apache error logs: `tail -f /var/log/apache2/error.log`
+3. Test API directly: `curl http://localhost:3000/health`
+4. Verify database connection: `cd backend && npx prisma db pull`

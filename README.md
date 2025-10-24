@@ -1,224 +1,267 @@
-# Simply QR - QR Code Management Platform
+# Simply QR - QR Code Management System
 
-A complete QR code management and analytics platform built with Next.js, deployed on Cloudflare Pages with D1 database and R2 storage.
+A full-stack QR code creation and management system with analytics tracking.
 
 ## Features
 
-- **QR Code Generation**: Create customizable QR codes with logos, colors, and error correction levels
-- **Analytics Dashboard**: Track scans with detailed analytics including location, device type, and time-based metrics
-- **User Authentication**: Secure authentication powered by Clerk
-- **Cloud Storage**: QR codes stored in Cloudflare R2 buckets
-- **Database**: User data, QR codes, and analytics stored in Cloudflare D1 (SQLite)
-- **Scan Tracking**: Automatic tracking of scans with geolocation and device detection
-- **Organization**: Organize QR codes with folders and tags
-- **Short URLs**: Clean, short URLs for easy sharing
+- **User Authentication** - Secure login and registration with JWT tokens
+- **QR Code Creation** - Generate custom QR codes with color and size options
+- **QR Code Management** - Edit, delete, and activate/deactivate QR codes
+- **Analytics Tracking** - Track scans, timestamps, IP addresses, and more
+- **Redirect Service** - Short URLs that redirect to target destinations
+- **Responsive UI** - Mobile-friendly Vue.js interface
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15, React 19, Tailwind CSS
-- **Authentication**: Clerk
-- **Database**: Cloudflare D1 (SQLite)
-- **Storage**: Cloudflare R2
-- **Hosting**: Cloudflare Pages
-- **Analytics**: Recharts for data visualization
-- **QR Generation**: qrcode + sharp for image processing
+### Backend
+- **Node.js** + **Express.js** - REST API server
+- **Prisma ORM** - Database abstraction and migrations
+- **MySQL** - Database
+- **bcrypt** - Password hashing
+- **JWT** - Authentication tokens
+- **qrcode** - QR code generation
 
-## Getting Started
+### Frontend
+- **Vue.js 3** - Frontend framework
+- **Vue Router** - Client-side routing
+- **Pinia** - State management
+- **Vite** - Build tool
+- **Axios** - HTTP client
 
-### Prerequisites
-
-- Node.js 18+ installed
-- Cloudflare account
-- Clerk account
-
-### 1. Clone the repository
-
-\`\`\`bash
-git clone https://github.com/wattzwebdesign/simply-qr.git
-cd simply-qr
-\`\`\`
-
-### 2. Install dependencies
-
-\`\`\`bash
-npm install
-\`\`\`
-
-### 3. Set up environment variables
-
-Copy \`.env.example\` to \`.env\` and fill in the required values:
-
-\`\`\`bash
-cp .env.example .env
-\`\`\`
-
-Required environment variables:
-
-- \`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY\`: Your Clerk publishable key
-- \`CLERK_SECRET_KEY\`: Your Clerk secret key
-- \`R2_ACCESS_KEY_ID\`: Cloudflare R2 access key
-- \`R2_SECRET_ACCESS_KEY\`: Cloudflare R2 secret key
-- \`R2_ACCOUNT_ID\`: Your Cloudflare account ID
-- \`R2_BUCKET_NAME\`: Name of your R2 bucket
-- \`CLOUDFLARE_ACCOUNT_ID\`: Your Cloudflare account ID
-- \`CLOUDFLARE_API_TOKEN\`: Your Cloudflare API token
-
-### 4. Set up Cloudflare resources
-
-#### Create D1 Database
-
-\`\`\`bash
-npm run cf:d1:create
-\`\`\`
-
-Copy the database ID from the output and update your \`wrangler.toml\` file.
-
-#### Run Database Migration
-
-\`\`\`bash
-npm run cf:d1:migrate
-\`\`\`
-
-#### Create R2 Bucket
-
-\`\`\`bash
-npm run cf:r2:create
-\`\`\`
-
-### 5. Run development server
-
-\`\`\`bash
-npm run dev
-\`\`\`
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Deployment
-
-### Deploy to Cloudflare Pages
-
-1. Build the application:
-
-\`\`\`bash
-npm run pages:build
-\`\`\`
-
-2. Deploy to Cloudflare Pages:
-
-\`\`\`bash
-npm run deploy
-\`\`\`
-
-### Configure Environment Variables in Cloudflare
-
-In your Cloudflare Pages dashboard:
-
-1. Go to your project settings
-2. Navigate to "Environment variables"
-3. Add all the environment variables from your \`.env\` file
-
-### Bind D1 and R2 to your Pages project
-
-In \`wrangler.toml\`, ensure the bindings are correctly configured:
-
-\`\`\`toml
-[[d1_databases]]
-binding = "DB"
-database_name = "simply-qr-db"
-database_id = "your-database-id"
-
-[[r2_buckets]]
-binding = "QR_BUCKET"
-bucket_name = "simply-qr"
-\`\`\`
+### Deployment
+- **PM2** - Process management
+- **Apache/.htaccess** - Web server routing
+- **PHP proxy** - Backend API routing
 
 ## Project Structure
 
-\`\`\`
+```
 simply-qr/
-├── src/
-│   ├── app/                    # Next.js app directory
-│   │   ├── api/               # API routes
-│   │   │   ├── qr-codes/     # QR code CRUD operations
-│   │   │   ├── scan/         # Scan tracking
-│   │   │   └── analytics/    # Analytics endpoints
-│   │   ├── dashboard/        # Dashboard pages
-│   │   └── s/                # Short URL redirects
-│   ├── components/            # React components
-│   │   ├── dashboard/        # Dashboard components
-│   │   └── qr/              # QR code components
-│   ├── lib/                  # Utility libraries
-│   │   ├── db.ts            # Database operations
-│   │   ├── qr-generator.ts  # QR code generation
-│   │   └── r2-storage.ts    # R2 storage operations
-│   ├── types/               # TypeScript types
-│   └── styles/              # Global styles
-├── database/
-│   └── schema.sql           # Database schema
-├── wrangler.toml            # Cloudflare configuration
-└── package.json
-\`\`\`
+├── backend/                    # Node.js backend
+│   ├── prisma/                # Database schema & migrations
+│   ├── routes/                # API endpoints
+│   ├── middleware/            # Auth middleware
+│   ├── services/              # Business logic
+│   ├── server.js              # Express app entry
+│   └── package.json
+│
+├── frontend/                   # Vue.js frontend
+│   ├── src/
+│   │   ├── views/            # Page components
+│   │   ├── components/       # Reusable components
+│   │   ├── stores/           # Pinia stores
+│   │   ├── services/         # API client
+│   │   └── router/           # Vue Router config
+│   ├── public/               # Static assets
+│   └── package.json
+│
+├── .htaccess                   # Apache config
+├── api.php                     # PHP proxy
+├── ecosystem.config.js         # PM2 config
+└── .xcloud-deploy.sh          # Deployment script
+```
 
-## API Routes
+## Local Development Setup
 
-### QR Codes
+### Prerequisites
+- Node.js 18+
+- MySQL database
+- npm or yarn
 
-- \`GET /api/qr-codes\` - List all QR codes for authenticated user
-- \`POST /api/qr-codes\` - Create a new QR code
-- \`GET /api/qr-codes/[id]\` - Get QR code details
-- \`PATCH /api/qr-codes/[id]\` - Update QR code
-- \`DELETE /api/qr-codes/[id]\` - Delete QR code
-- \`GET /api/qr-codes/[id]/image\` - Serve QR code image
+### Backend Setup
 
-### Analytics
+1. Navigate to backend directory:
+```bash
+cd backend
+```
 
-- \`GET /api/analytics/[id]\` - Get analytics for a QR code
+2. Install dependencies:
+```bash
+npm install
+```
 
-### Scan Tracking
+3. Create `.env` file:
+```bash
+cp .env.example .env
+```
 
-- \`GET /api/scan/[shortCode]\` - Track scan and redirect to target URL
+4. Update `.env` with your database credentials:
+```
+DATABASE_URL="mysql://user:password@localhost:3306/database"
+JWT_SECRET="your-secret-key-here"
+PORT=3000
+NODE_ENV=development
+```
+
+5. Generate Prisma client:
+```bash
+npx prisma generate
+```
+
+6. Run database migrations:
+```bash
+npx prisma migrate dev
+```
+
+7. Start backend server:
+```bash
+npm run dev
+```
+
+Backend will run on http://localhost:3000
+
+### Frontend Setup
+
+1. Navigate to frontend directory:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Create `.env` file:
+```bash
+cp .env.example .env
+```
+
+4. Start development server:
+```bash
+npm run dev
+```
+
+Frontend will run on http://localhost:5173
 
 ## Database Schema
 
-The application uses the following main tables:
+### User
+- id (UUID)
+- username (unique)
+- email (unique)
+- password (hashed)
+- isAdmin (boolean)
+- createdAt, updatedAt
 
-- \`users\` - User accounts (synced from Clerk)
-- \`qr_codes\` - QR code configurations and metadata
-- \`scans\` - Scan events with analytics data
-- \`folders\` - Organization folders
-- \`tags\` - Tags for categorization
-- \`qr_code_folders\` - QR code to folder relationships
-- \`qr_code_tags\` - QR code to tag relationships
+### QRCode
+- id (UUID)
+- userId (foreign key)
+- name
+- url (target URL)
+- qrCodeData (base64 image)
+- shortCode (unique tracking code)
+- backgroundColor, foregroundColor, size
+- scanCount, lastScanned
+- isActive
+- createdAt, updatedAt
 
-See \`database/schema.sql\` for the complete schema.
+### Scan
+- id (UUID)
+- qrCodeId (foreign key)
+- scannedAt
+- ipAddress, userAgent, referer
+- country, city
 
-## Features in Detail
+## API Endpoints
 
-### QR Code Customization
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `GET /api/auth/me` - Get current user profile
 
-- Custom foreground and background colors
-- Logo overlay support
-- Error correction levels (L, M, Q, H)
-- Custom sizes
-- PNG format output
+### QR Codes (Authenticated)
+- `POST /api/qrcodes` - Create QR code
+- `GET /api/qrcodes` - List QR codes (with pagination & search)
+- `GET /api/qrcodes/:id` - Get QR code details
+- `PUT /api/qrcodes/:id` - Update QR code
+- `DELETE /api/qrcodes/:id` - Delete QR code
+- `GET /api/qrcodes/:id/analytics` - Get QR code analytics
 
-### Analytics Tracking
+### Redirect (Public)
+- `GET /r/:shortCode` - Redirect to target URL & track scan
 
-- Total scans and time-based metrics
-- Geographic location (country, region, city)
-- Device information (type, OS, browser)
-- Scan history over time
-- Visual charts and graphs
+## Production Deployment (xCloud)
 
-### Organization
+### Automatic Deployment
 
-- Create folders to organize QR codes
-- Add tags for categorization
-- Search and filter capabilities
+1. Ensure `.env` file exists in `backend/` directory with production credentials
 
-## Contributing
+2. Push code to Git repository
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+3. xCloud will automatically run `.xcloud-deploy.sh` which:
+   - Installs dependencies
+   - Generates Prisma client
+   - Runs database migrations
+   - Builds frontend
+   - Copies built files to root
+   - Starts backend with PM2
+
+### Manual Deployment
+
+1. SSH into your xCloud server
+
+2. Navigate to project directory
+
+3. Run deployment script:
+```bash
+bash .xcloud-deploy.sh
+```
+
+### PM2 Commands
+
+Check backend status:
+```bash
+pm2 status
+```
+
+View logs:
+```bash
+pm2 logs simply-qr-backend
+```
+
+Restart backend:
+```bash
+pm2 restart simply-qr-backend
+```
+
+Monitor processes:
+```bash
+pm2 monit
+```
+
+## Environment Variables
+
+### Backend (.env)
+
+```env
+DATABASE_URL="mysql://user:password@host:3306/database"
+JWT_SECRET="your-secret-key"
+PORT=3000
+NODE_ENV=production
+```
+
+### Frontend (.env)
+
+Development:
+```env
+VITE_API_BASE_URL=http://localhost:3000
+```
+
+Production (auto-detected):
+```env
+VITE_API_BASE_URL=https://yourdomain.com
+```
+
+## Security Features
+
+- Password hashing with bcrypt (10 rounds)
+- JWT-based authentication (7-day expiration)
+- Protected API routes with middleware
+- Input validation and sanitization
+- CORS configuration
+- Security headers (X-Content-Type-Options, X-Frame-Options, etc.)
+- SQL injection protection via Prisma ORM
 
 ## License
 
@@ -226,4 +269,4 @@ ISC
 
 ## Support
 
-For issues and questions, please use the [GitHub Issues](https://github.com/wattzwebdesign/simply-qr/issues) page.
+For issues or questions, please create an issue in the repository.
