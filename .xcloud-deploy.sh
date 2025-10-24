@@ -6,6 +6,21 @@ set -e  # Exit on error
 
 echo "=== Simply QR Deployment Started ==="
 
+# Check if backend/.env exists
+if [ ! -f "backend/.env" ]; then
+    echo "ERROR: backend/.env file not found!"
+    echo ""
+    echo "Please create backend/.env with the following content:"
+    echo ""
+    echo "DATABASE_URL=\"mysql://u167824_bubbling:jciCsq8SSFUGS98f@localhost:3306/s167824_bubbling\""
+    echo "JWT_SECRET=\"$(openssl rand -base64 32 2>/dev/null || echo 'CHANGE-THIS-TO-SECURE-SECRET')\""
+    echo "PORT=3000"
+    echo "NODE_ENV=production"
+    echo ""
+    echo "Then run this script again."
+    exit 1
+fi
+
 # Install backend dependencies
 echo "Installing backend dependencies..."
 cd backend
