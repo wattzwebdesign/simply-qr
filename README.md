@@ -65,6 +65,38 @@ pm2 status
 curl http://localhost:3000/health
 ```
 
+## Database Setup
+
+**IMPORTANT: Run this ONCE before first deployment!**
+
+### Option 1: Using Prisma (Recommended)
+
+```bash
+# On xCloud server
+cd /var/www/bubbling-butterfly-167824.1wp.site/backend
+npx prisma migrate deploy
+```
+
+### Option 2: Using MySQL directly
+
+```bash
+# Connect to MySQL
+mysql -u u167824_bubbling -p s167824_bubbling
+
+# Run the CREATE_TABLES.sql file
+source CREATE_TABLES.sql;
+
+# Or paste the contents of CREATE_TABLES.sql
+```
+
+### Verify Tables Created
+
+```bash
+mysql -u u167824_bubbling -p s167824_bubbling -e "SHOW TABLES;"
+```
+
+Should show: `User`, `QRCode`, `Scan`
+
 ## Environment Setup
 
 ### Backend `.env` file:
