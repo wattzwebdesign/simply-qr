@@ -137,6 +137,29 @@ openssl rand -base64 32
 ### Redirects (public)
 - `GET /r/:shortCode` - Redirect & track scan
 
+## Nginx Configuration
+
+**If using nginx (recommended for xCloud):**
+
+Add the configuration from `nginx.conf` to your site's nginx config:
+
+```bash
+# Edit nginx site config
+sudo nano /etc/nginx/sites-available/your-site.conf
+
+# Test config
+sudo nginx -t
+
+# Reload nginx
+sudo systemctl reload nginx
+```
+
+Key points:
+- `/api/*` proxied to `http://localhost:3000/api/`
+- `/r/*` proxied to `http://localhost:3000/r/`
+- All other routes fallback to `index.html` (SPA routing)
+- Static assets cached for 1 year
+
 ## Troubleshooting
 
 ### Backend won't start?
