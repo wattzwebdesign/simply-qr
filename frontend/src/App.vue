@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <AppHeader v-if="isAuthenticated" />
+    <AppHeader />
     <main>
       <router-view />
     </main>
@@ -8,12 +8,12 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useAuthStore } from './stores/auth'
 import AppHeader from './components/AppHeader.vue'
 
 const authStore = useAuthStore()
-const isAuthenticated = computed(() => authStore.isAuthenticated)
+// Initialize auth on app load
+authStore.initAuth()
 </script>
 
 <style scoped>

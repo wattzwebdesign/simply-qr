@@ -3,15 +3,25 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <h1>Simply QR</h1>
+          <router-link to="/">
+            <h1>Simply QR</h1>
+          </router-link>
         </div>
         <nav class="nav">
-          <router-link to="/dashboard" class="nav-link">Dashboard</router-link>
-          <router-link to="/qrcodes/create" class="nav-link">Create QR</router-link>
-          <div class="user-menu">
-            <span class="username">{{ authStore.user?.username }}</span>
-            <button @click="handleLogout" class="btn btn-secondary">Logout</button>
-          </div>
+          <router-link to="/" class="nav-link">Create</router-link>
+
+          <template v-if="authStore.isAuthenticated">
+            <router-link to="/dashboard" class="nav-link">My QR Codes</router-link>
+            <div class="user-menu">
+              <span class="username">{{ authStore.user?.username }}</span>
+              <button @click="handleLogout" class="btn btn-secondary">Logout</button>
+            </div>
+          </template>
+
+          <template v-else>
+            <router-link to="/login" class="btn btn-secondary">Login</router-link>
+            <router-link to="/register" class="btn btn-primary">Sign Up</router-link>
+          </template>
         </nav>
       </div>
     </div>
@@ -42,6 +52,10 @@ const handleLogout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.logo a {
+  text-decoration: none;
 }
 
 .logo h1 {

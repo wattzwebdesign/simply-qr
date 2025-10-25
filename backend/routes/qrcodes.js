@@ -6,10 +6,7 @@ const QRGenerator = require('../services/qrGenerator');
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// All routes require authentication
-router.use(authenticateToken);
-
-// Create new QR code
+// Create new QR code (PUBLIC - no auth required)
 router.post('/', async (req, res) => {
   try {
     const { name, url, backgroundColor, foregroundColor, size } = req.body;
@@ -43,30 +40,70 @@ router.post('/', async (req, res) => {
       foregroundColor: foregroundColor || '#000000'
     });
 
-    // Create QR code in database
-    const qrCode = await prisma.qRCode.create({
-      data: {
-        userId: req.user.id,
+    // Check if user is authenticated
+    const token = req.headers['authorization']?.split(' ')[1];
+    let qrCode;
+
+    if (token) {
+      // Authenticated user - save to database
+      try {
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await prisma.user.findUnique({
+          where: { id: decoded.userId }
+        });
+
+        if (user) {
+          // Save to database
+          qrCode = await prisma.qRCode.create({
+            data: {
+              userId: user.id,
+              name,
+              url,
+              qrCodeData,
+              shortCode,
+              backgroundColor: backgroundColor || '#ffffff',
+              foregroundColor: foregroundColor || '#000000',
+              size: size || 300,
+              isActive: true
+            }
+          });
+
+          return res.status(201).json({
+            message: 'QR code created and saved to your account',
+            qrCode,
+            saved: true
+          });
+        }
+      } catch (err) {
+        // Invalid token, treat as anonymous
+        console.log('Invalid token, creating anonymous QR code');
+      }
+    }
+
+    // Anonymous user - just return QR code data without saving
+    res.status(201).json({
+      message: 'QR code created successfully',
+      qrCode: {
         name,
         url,
         qrCodeData,
         shortCode,
         backgroundColor: backgroundColor || '#ffffff',
         foregroundColor: foregroundColor || '#000000',
-        size: size || 300,
-        isActive: true
-      }
-    });
-
-    res.status(201).json({
-      message: 'QR code created successfully',
-      qrCode
+        size: size || 300
+      },
+      saved: false,
+      notice: 'QR code not saved. Create an account to save and manage your QR codes.'
     });
   } catch (error) {
     console.error('Create QR code error:', error);
     res.status(500).json({ error: 'Failed to create QR code' });
   }
 });
+
+// All routes below require authentication
+router.use(authenticateToken);
 
 // Get all QR codes for current user
 router.get('/', async (req, res) => {

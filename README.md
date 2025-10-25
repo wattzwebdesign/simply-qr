@@ -4,11 +4,13 @@ A full-stack QR code creation and management system with analytics tracking.
 
 ## Features
 
-- 🔐 **User Authentication** - Secure login/registration with JWT
+- 🌐 **Public Access** - Create QR codes instantly, no account required!
+- 🔐 **Optional Accounts** - Sign up to save and manage your QR codes
 - 🎨 **Custom QR Codes** - Customize colors and sizes
-- 📊 **Analytics Tracking** - Track scans with IP, timestamp, user agent
+- 📊 **Analytics Tracking** - Track scans with IP, timestamp, user agent (for saved codes)
 - 🔗 **Short URLs** - `/r/{code}` redirects to target URLs
 - 📱 **Responsive UI** - Mobile-friendly Vue.js interface
+- 💾 **Save & Manage** - Logged-in users can edit, delete, and view analytics
 
 ## Tech Stack
 
