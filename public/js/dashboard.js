@@ -8,11 +8,13 @@ if (!token) {
   window.location.href = '/login';
 }
 
-// Display user email
-document.getElementById('user-email').textContent = user.email || '';
+// Display user email in profile dropdown
+document.getElementById('profile-email').textContent = user.email || '';
 
 // Elements
-const logoutBtn = document.getElementById('logout-btn');
+const profileButton = document.getElementById('profile-button');
+const profileMenu = document.getElementById('profile-menu');
+const logoutMenuBtn = document.getElementById('logout-menu-btn');
 const searchInput = document.getElementById('search-input');
 const typeFilter = document.getElementById('type-filter');
 const favoritesFilter = document.getElementById('favorites-filter');
@@ -30,8 +32,21 @@ let allQRCodes = [];
 let filteredQRCodes = [];
 let currentFolder = null; // Track if we're viewing a specific folder
 
+// Profile dropdown toggle
+profileButton.addEventListener('click', (e) => {
+  e.stopPropagation();
+  profileMenu.classList.toggle('open');
+});
+
+// Close profile menu when clicking outside
+document.addEventListener('click', (e) => {
+  if (!profileButton.contains(e.target) && !profileMenu.contains(e.target)) {
+    profileMenu.classList.remove('open');
+  }
+});
+
 // Logout handler
-logoutBtn.addEventListener('click', () => {
+logoutMenuBtn.addEventListener('click', () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   window.location.href = '/login';

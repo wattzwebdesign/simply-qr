@@ -31,11 +31,34 @@
         <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
         Create QR Code
       </a>
-      <span id="user-email" style="color: var(--text-secondary); font-size: var(--text-sm);"></span>
-      <button class="btn btn-secondary btn-sm" id="logout-btn">
-        <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
-        Logout
-      </button>
+
+      <!-- Profile Dropdown -->
+      <div class="profile-dropdown">
+        <button class="profile-button" id="profile-button">
+          <div class="profile-avatar">
+            <i data-lucide="user" style="width: 18px; height: 18px;"></i>
+          </div>
+          <i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i>
+        </button>
+
+        <div class="profile-menu" id="profile-menu">
+          <div class="profile-menu-header">
+            <div class="profile-avatar-large">
+              <i data-lucide="user" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+              <div class="profile-email" id="profile-email"></div>
+            </div>
+          </div>
+
+          <div class="profile-menu-divider"></div>
+
+          <button class="profile-menu-item" id="logout-menu-btn">
+            <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
