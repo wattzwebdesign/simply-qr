@@ -322,6 +322,17 @@ function generatePreview(showErrors = true) {
 
   if (isGeneratingPreview) return;
 
+  // Check if QRCode library is loaded
+  if (typeof QRCode === 'undefined') {
+    console.error('QRCode library not loaded yet');
+    if (showErrors) {
+      previewContainer.innerHTML = '<p style="color: var(--text-tertiary);">Loading preview...</p>';
+    }
+    // Retry after a short delay
+    setTimeout(() => generatePreview(showErrors), 100);
+    return;
+  }
+
   isGeneratingPreview = true;
   previewContainer.innerHTML = '<div class="spinner" style="margin: 0 auto;"></div><p style="color: var(--text-tertiary); margin-top: var(--space-md);">Generating preview...</p>';
 
@@ -550,8 +561,10 @@ async function loadQRCode() {
         sizeValue.textContent = qr.size;
         qrErrorCorrection.value = qr.error_correction;
 
-        // Show preview
-        previewContainer.innerHTML = `<img src="${qr.file_path}" alt="QR Code Preview" style="max-width: 100%; height: auto;">`;
+        // Generate preview after loading data
+        setTimeout(() => {
+          generatePreview(true);
+        }, 200);
       }, 100);
     } else {
       showAlert('Failed to load QR code', 'error');

@@ -156,6 +156,14 @@ function renderQRCodes() {
 
 // Generate QR codes on canvas elements
 function generateQRCodesOnCanvas() {
+  // Check if QRCode library is loaded
+  if (typeof QRCode === 'undefined') {
+    console.error('QRCode library not loaded yet');
+    // Retry after a short delay
+    setTimeout(generateQRCodesOnCanvas, 100);
+    return;
+  }
+
   filteredQRCodes.forEach(qr => {
     const canvas = document.getElementById(`qr-canvas-${qr.id}`);
     if (!canvas) return;
@@ -325,6 +333,12 @@ async function toggleFavorite(qrId, isFavorite) {
 async function downloadQRCode(qrId) {
   const qr = allQRCodes.find(q => q.id == qrId);
   if (!qr) return;
+
+  // Check if QRCode library is loaded
+  if (typeof QRCode === 'undefined') {
+    showAlert('QR library not ready, please try again', 'error');
+    return;
+  }
 
   // Generate QR code at higher resolution for download
   const canvas = document.createElement('canvas');
