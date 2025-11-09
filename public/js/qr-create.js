@@ -326,7 +326,11 @@ function collectFormData() {
     case 'sms':
       const smsPhone = document.getElementById('content-sms-phone')?.value || '';
       const smsMessage = document.getElementById('content-sms-message')?.value || '';
-      content = `smsto:${smsPhone}:${smsMessage}`;
+      if (smsMessage) {
+        content = `sms:${smsPhone}?body=${encodeURIComponent(smsMessage)}`;
+      } else {
+        content = `sms:${smsPhone}`;
+      }
       break;
 
     case 'phone':
@@ -821,11 +825,28 @@ async function loadQRCode() {
             break;
 
           case 'sms':
-            const smsMatch = qr.content.match(/smsto:([^:]+):(.+)/);
-            if (smsMatch) {
-              document.getElementById('content-sms-phone').value = smsMatch[1];
-              document.getElementById('content-sms-message').value = smsMatch[2] || '';
+            // Support both old format (smsto:) and new format (sms:)
+            let smsPhone = '';
+            let smsMessage = '';
+
+            if (qr.content.startsWith('sms:')) {
+              // New format: sms:+1234567890?body=message
+              const smsMatch = qr.content.match(/sms:([^?]+)(?:\?body=(.+))?/);
+              if (smsMatch) {
+                smsPhone = smsMatch[1];
+                smsMessage = smsMatch[2] ? decodeURIComponent(smsMatch[2]) : '';
+              }
+            } else {
+              // Old format: smsto:+1234567890:message
+              const smsMatch = qr.content.match(/smsto:([^:]+):(.+)/);
+              if (smsMatch) {
+                smsPhone = smsMatch[1];
+                smsMessage = smsMatch[2] || '';
+              }
             }
+
+            document.getElementById('content-sms-phone').value = smsPhone;
+            document.getElementById('content-sms-message').value = smsMessage;
             break;
 
           case 'phone':
