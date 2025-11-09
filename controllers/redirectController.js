@@ -9,7 +9,7 @@ async function handleRedirect(req, res) {
 
     // Get QR code by short code
     const qrcode = await getAsync(
-      'SELECT id, redirect_url, is_dynamic, name FROM qr_codes WHERE short_code = ?',
+      'SELECT id, type, content, redirect_url, is_dynamic, name FROM qr_codes WHERE short_code = ?',
       [shortCode]
     );
 
@@ -52,8 +52,18 @@ async function handleRedirect(req, res) {
       `);
     }
 
-    // Check if redirect URL exists
-    if (!qrcode.redirect_url) {
+    // Determine the destination URL
+    let destinationUrl = null;
+    if (qrcode.type === 'url') {
+      // For URL type, use content field (which contains the actual URL)
+      destinationUrl = qrcode.content;
+    } else if (qrcode.redirect_url) {
+      // For other types that might have a redirect URL set
+      destinationUrl = qrcode.redirect_url;
+    }
+
+    // Check if destination URL exists
+    if (!destinationUrl) {
       return res.status(500).send(`
         <!DOCTYPE html>
         <html>
@@ -85,15 +95,8 @@ async function handleRedirect(req, res) {
       console.error('Error tracking scan:', err);
     });
 
-    // Check if it's a URL type - if so, redirect directly
-    if (qrcode.type === 'url' && qrcode.redirect_url) {
-      // Direct redirect for URLs
-      res.redirect(302, qrcode.redirect_url);
-    } else {
-      // For non-URL types (WiFi, vCard, SMS, etc.), serve the QR display page
-      // The display page will render the QR code client-side
-      res.sendFile(require('path').join(__dirname, '../public/qr-display.html'));
-    }
+    // Redirect to the destination URL
+    res.redirect(302, destinationUrl);
 
   } catch (error) {
     console.error('Redirect error:', error);

@@ -80,7 +80,7 @@ async function loadQRAnalytics() {
     const data = await response.json();
 
     if (data.success) {
-      renderQRAnalytics(data.analytics);
+      renderQRAnalytics(data.qrcode, data.analytics);
       loadingState.style.display = 'none';
       analyticsContent.style.display = 'block';
     } else {
@@ -95,44 +95,44 @@ async function loadQRAnalytics() {
 }
 
 // Render QR analytics data
-function renderQRAnalytics(analytics) {
+function renderQRAnalytics(qrcode, analytics) {
   // Update page title and QR info
-  document.getElementById('page-title').textContent = `${analytics.qrCode.name} - Analytics`;
-  document.getElementById('qr-name').textContent = analytics.qrCode.name;
+  document.getElementById('page-title').textContent = `${qrcode.name} - Analytics`;
+  document.getElementById('qr-name').textContent = qrcode.name;
 
   // Update QR type badge
   const typeBadge = document.getElementById('qr-type-badge');
-  typeBadge.textContent = analytics.qrCode.type.toUpperCase();
-  typeBadge.className = `badge badge-${analytics.qrCode.type}`;
+  typeBadge.textContent = qrcode.type.toUpperCase();
+  typeBadge.className = `badge badge-${qrcode.type}`;
 
   // Update short URL (only for URL type)
   const shortUrlElement = document.getElementById('qr-short-url');
-  if (analytics.qrCode.type === 'url' && analytics.qrCode.short_code) {
-    shortUrlElement.textContent = `${window.location.origin}/r/${analytics.qrCode.short_code}`;
+  if (qrcode.type === 'url' && qrcode.short_code) {
+    shortUrlElement.textContent = `${window.location.origin}/r/${qrcode.short_code}`;
   } else {
     shortUrlElement.textContent = 'Static QR Code';
   }
 
   // Update edit link
-  document.getElementById('edit-qr-link').href = `/edit/${analytics.qrCode.id}`;
+  document.getElementById('edit-qr-link').href = `/edit/${qrcode.id}`;
 
   // Generate QR code preview
-  generateQRPreview(analytics.qrCode);
+  generateQRPreview(qrcode);
 
   // Update summary cards
   document.getElementById('total-scans').textContent = formatNumber(analytics.totalScans);
   document.getElementById('unique-ips').textContent = formatNumber(analytics.uniqueIPs);
 
   const lastScannedElement = document.getElementById('last-scanned');
-  if (analytics.lastScanned) {
-    lastScannedElement.textContent = formatDate(analytics.lastScanned);
+  if (qrcode.last_scanned_at) {
+    lastScannedElement.textContent = formatDate(qrcode.last_scanned_at);
     lastScannedElement.style.fontSize = 'var(--text-lg)';
   } else {
     lastScannedElement.textContent = 'Never';
   }
 
   // Render timeline chart
-  renderTimelineChart(analytics.timeline);
+  renderTimelineChart(analytics.scansOverTime);
 
   // Render country breakdown
   renderCountryBreakdown(analytics.countryBreakdown);

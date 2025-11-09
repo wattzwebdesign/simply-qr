@@ -213,8 +213,11 @@ async function getQRAnalytics(req, res) {
         id: qrcode.id,
         name: qrcode.name,
         type: qrcode.type,
+        content: qrcode.content,
         short_code: qrcode.short_code,
-        last_scanned_at: qrcode.last_scanned_at
+        last_scanned_at: qrcode.last_scanned_at,
+        color: qrcode.color,
+        bg_color: qrcode.bg_color
       },
       analytics: {
         totalScans,
