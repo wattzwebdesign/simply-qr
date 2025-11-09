@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Analytics - SimplyQR</title>
 
   <!-- Google Fonts -->
@@ -17,12 +17,12 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=2">
 </head>
 <body>
   <!-- Dashboard Header -->
   <div class="dashboard-header">
-    <div style="display: flex; align-items: center; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
       <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary-emerald), var(--primary-emerald-dark)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; padding: 10px;">
         <i data-lucide="qr-code" style="width: 28px; height: 28px;"></i>
       </div>
@@ -40,7 +40,7 @@
     <div style="display: flex; align-items: center; gap: 1rem;">
       <a href="/create" class="btn btn-primary">
         <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
-        Create QR Code
+        <span>Create QR Code</span>
       </a>
 
       <!-- Profile Dropdown -->
@@ -190,6 +190,20 @@
       </div>
     </div>
   </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-nav">
+    <div class="mobile-bottom-nav-container">
+      <a href="/dashboard" class="mobile-bottom-nav-item">
+        <i data-lucide="layout-dashboard" style="width: 24px; height: 24px;"></i>
+        <span class="mobile-bottom-nav-label">Dashboard</span>
+      </a>
+      <a href="/analytics" class="mobile-bottom-nav-item">
+        <i data-lucide="bar-chart-2" style="width: 24px; height: 24px;"></i>
+        <span class="mobile-bottom-nav-label">Analytics</span>
+      </a>
+    </div>
+  </nav>
 
   <!-- JavaScript -->
   <script src="/js/nav.js"></script>

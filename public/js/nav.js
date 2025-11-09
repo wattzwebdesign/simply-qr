@@ -1,6 +1,39 @@
 // Global Navigation Component
 // This file handles the consistent navigation header across all pages
 
+// Load navigation HTML includes
+async function loadNavigationIncludes() {
+  // Load header if placeholder exists
+  const headerPlaceholder = document.getElementById('header-placeholder');
+  if (headerPlaceholder) {
+    try {
+      const response = await fetch('/includes/header.html');
+      if (response.ok) {
+        const html = await response.text();
+        headerPlaceholder.innerHTML = html;
+        lucide.createIcons();
+      }
+    } catch (error) {
+      console.error('Error loading header:', error);
+    }
+  }
+
+  // Load mobile nav if placeholder exists
+  const mobileNavPlaceholder = document.getElementById('mobile-nav-placeholder');
+  if (mobileNavPlaceholder) {
+    try {
+      const response = await fetch('/includes/mobile-nav.html');
+      if (response.ok) {
+        const html = await response.text();
+        mobileNavPlaceholder.innerHTML = html;
+        lucide.createIcons();
+      }
+    } catch (error) {
+      console.error('Error loading mobile nav:', error);
+    }
+  }
+}
+
 function initializeNavigation() {
   // Get user info
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -89,4 +122,7 @@ function highlightCurrentPage() {
 }
 
 // Initialize navigation immediately
-initializeNavigation();
+(async () => {
+  await loadNavigationIncludes();
+  initializeNavigation();
+})();
