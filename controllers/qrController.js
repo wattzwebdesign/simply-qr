@@ -490,7 +490,7 @@ async function getQRCodeByShortCode(req, res) {
 // Get all unique folders for the user
 async function getFolders(req, res) {
   try {
-    const folders = await db.allAsync(
+    const folders = await allAsync(
       `SELECT DISTINCT folder
        FROM qr_codes
        WHERE user_id = ? AND folder IS NOT NULL AND folder != ''
