@@ -668,9 +668,9 @@ select.input-field {
     grid-template-columns: 1fr;
   }
 
-  /* Folder grid - 2 columns on mobile */
+  /* Folder grid - 1 column on mobile */
   div[style*="grid-template-columns: repeat(4, 1fr)"] {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: 1fr !important;
   }
 
   /* Tags and Folder - stack on mobile */
@@ -829,10 +829,10 @@ select.input-field {
 /* QR Frame Visual Picker */
 .qr-frame-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-md);
   margin-top: var(--space-md);
-  max-width: 600px;
+  max-width: 500px;
 }
 
 .qr-frame-card {
