@@ -38,9 +38,9 @@
     </div>
   </div>
 
-  <div style="display: flex; min-height: calc(100vh - 73px);">
+  <div style="display: flex; min-height: calc(100vh - 73px); max-width: 1600px; margin: 0 auto; width: 100%;">
     <!-- Form Section -->
-    <div style="flex: 1; padding: var(--space-2xl); max-width: 800px; margin: 0 auto; width: 100%;">
+    <div style="flex: 1; padding: var(--space-2xl); min-width: 0;">
       <!-- Alert Container -->
       <div id="alert-container"></div>
 
@@ -243,7 +243,7 @@
     </div>
 
     <!-- Preview Section -->
-    <div style="width: 400px; background: var(--bg-primary); border-left: 1px solid var(--border-color); padding: var(--space-2xl); position: sticky; top: 73px; height: calc(100vh - 73px); overflow-y: auto;">
+    <div style="width: 450px; background: var(--bg-primary); border-left: 1px solid var(--border-color); padding: var(--space-2xl); position: sticky; top: 73px; height: calc(100vh - 73px); overflow-y: auto; flex-shrink: 0;">
       <h3 style="margin-bottom: var(--space-lg);">Live Preview</h3>
 
       <div class="preview-box" id="preview-container">

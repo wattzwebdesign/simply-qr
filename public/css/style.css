@@ -733,12 +733,12 @@ select.input-field {
     font-size: var(--text-md) !important;
   }
 
-  /* Hide preview section on mobile or make it collapsible */
-  body > div[style*="display: flex"] {
+  /* Create page layout adjustments for mobile */
+  body > div[style*="max-width: 1600px"] {
     flex-direction: column !important;
   }
 
-  body > div[style*="width: 400px"] {
+  body > div[style*="width: 450px"] {
     width: 100% !important;
     position: relative !important;
     height: auto !important;
@@ -749,7 +749,6 @@ select.input-field {
 
   /* Form section mobile */
   body > div > div[style*="flex: 1"] {
-    max-width: 100% !important;
     padding: var(--space-lg) !important;
   }
 
