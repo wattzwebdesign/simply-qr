@@ -29,9 +29,14 @@ app.use('/api/qrcodes', qrCodeRoutes);
 // Public redirect routes (for dynamic QR codes)
 app.use('/r', redirectRoutes);
 
-// Root route - serve login page
+// Root route - serve home/landing page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Login/Register route
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
 // Dashboard route

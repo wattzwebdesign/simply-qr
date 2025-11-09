@@ -5,7 +5,7 @@ const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 
 if (!token) {
-  window.location.href = '/';
+  window.location.href = '/login';
 }
 
 // Display user email
@@ -30,7 +30,7 @@ let filteredQRCodes = [];
 logoutBtn.addEventListener('click', () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  window.location.href = '/';
+  window.location.href = '/login';
 });
 
 // Show alert
@@ -59,7 +59,7 @@ async function fetchQRCodes() {
       // Token expired
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/';
+      window.location.href = '/login';
       return;
     }
 

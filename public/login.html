@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SimplyQR - Login</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-box">
+      <div class="auth-header">
+        <div class="auth-logo">QR</div>
+        <h2 id="auth-title">Welcome Back</h2>
+        <p id="auth-subtitle">Sign in to manage your QR codes</p>
+      </div>
+
+      <!-- Alert Messages -->
+      <div id="alert-container"></div>
+
+      <!-- Login Form -->
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email</label>
+          <input
+            type="email"
+            id="login-email"
+            class="input-field"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input
+            type="password"
+            id="login-password"
+            class="input-field"
+            placeholder="Enter your password"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;" id="login-btn">
+          <span>Sign In</span>
+        </button>
+      </form>
+
+      <!-- Register Form (hidden by default) -->
+      <form id="register-form" class="hidden">
+        <div class="form-group">
+          <label class="form-label" for="register-email">Email</label>
+          <input
+            type="email"
+            id="register-email"
+            class="input-field"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="register-password">Password</label>
+          <input
+            type="password"
+            id="register-password"
+            class="input-field"
+            placeholder="At least 8 characters"
+            required
+            autocomplete="new-password"
+          >
+          <p class="form-helper">Password must be at least 8 characters long</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="register-password-confirm">Confirm Password</label>
+          <input
+            type="password"
+            id="register-password-confirm"
+            class="input-field"
+            placeholder="Re-enter your password"
+            required
+            autocomplete="new-password"
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;" id="register-btn">
+          <span>Create Account</span>
+        </button>
+      </form>
+
+      <!-- Toggle between login/register -->
+      <div class="text-center mt-lg">
+        <p style="color: var(--text-secondary); font-size: var(--text-sm);">
+          <span id="toggle-text">Don't have an account?</span>
+          <a href="#" id="toggle-form" style="color: var(--primary-emerald); font-weight: var(--font-medium); text-decoration: none; margin-left: 0.25rem;">
+            Sign Up
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="/js/auth.js"></script>
+</body>
+</html>
