@@ -194,7 +194,7 @@ function renderQRCodes() {
   // Render folders first as compact rows (like Google Drive) - separate div
   const folderNames = Object.keys(folderGroups).sort();
   if (folderNames.length > 0) {
-    html += `<div style="margin-bottom: var(--space-xl);">`;
+    html += `<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); margin-bottom: var(--space-xl);">`;
     folderNames.forEach(folderName => {
       const qrCodes = folderGroups[folderName];
       html += `
