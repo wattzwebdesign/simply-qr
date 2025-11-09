@@ -956,11 +956,6 @@ select.input-field {
     margin-left: var(--space-xs);
   }
 
-  /* Hide profile dropdown avatar, just show chevron */
-  .dashboard-header .profile-avatar {
-    display: none;
-  }
-
   .dashboard-header .profile-button {
     padding: var(--space-xs) !important;
   }
