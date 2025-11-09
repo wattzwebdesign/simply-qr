@@ -314,9 +314,10 @@ let previewRetryCount = 0;
 function generatePreview(showErrors = true) {
   const data = collectFormData();
 
-  if (!data.content || !currentShortCode) {
+  // For new QR codes, always show preview with short URL even if no content yet
+  if (!currentShortCode) {
     if (showErrors) {
-      previewContainer.innerHTML = '<p style="color: var(--text-tertiary);">Fill in the form to see preview</p>';
+      previewContainer.innerHTML = '<p style="color: var(--text-tertiary);">Error: No short code generated</p>';
     }
     return;
   }
@@ -590,9 +591,9 @@ async function loadQRCode() {
 updateContentFields();
 loadQRCode();
 
-// Trigger initial preview after a short delay (for new QR codes)
+// Trigger initial preview immediately (for new QR codes)
 if (!isEditMode) {
   setTimeout(() => {
-    schedulePreview();
-  }, 500);
+    generatePreview(false);
+  }, 100);
 }
