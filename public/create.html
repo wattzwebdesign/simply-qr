@@ -128,15 +128,32 @@
 
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" for="qr-folder">Folder</label>
-              <input
-                type="text"
-                id="qr-folder"
-                class="input-field"
-                placeholder="e.g., Client Work"
-                list="folder-suggestions"
-                autocomplete="off"
-              >
-              <datalist id="folder-suggestions"></datalist>
+              <div class="folder-dropdown-container">
+                <input
+                  type="text"
+                  id="qr-folder"
+                  class="input-field"
+                  placeholder="e.g., Client Work"
+                  autocomplete="off"
+                >
+                <button type="button" class="folder-dropdown-trigger" id="folder-dropdown-trigger">
+                  <i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i>
+                </button>
+                <div class="folder-dropdown-menu" id="folder-dropdown-menu">
+                  <div class="folder-dropdown-search">
+                    <input
+                      type="text"
+                      id="folder-search-input"
+                      class="input-field"
+                      placeholder="Search or type new folder..."
+                      autocomplete="off"
+                    >
+                  </div>
+                  <div class="folder-dropdown-options" id="folder-dropdown-options">
+                    <!-- Options populated by JavaScript -->
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <p class="form-helper" style="margin-top: var(--space-sm);">Add tags and folders to organize your QR codes</p>

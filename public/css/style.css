@@ -698,6 +698,99 @@ select.input-field {
   border-radius: 0 0 var(--radius-md) var(--radius-md);
 }
 
+/* Folder Dropdown */
+.folder-dropdown-container {
+  position: relative;
+}
+
+.folder-dropdown-trigger {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  background: var(--bg-secondary);
+  border: none;
+  border-left: 1px solid var(--border-color);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 0 var(--space-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.folder-dropdown-trigger:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.folder-dropdown-menu {
+  position: absolute;
+  top: calc(100% + var(--space-xs));
+  left: 0;
+  right: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  display: none;
+  max-height: 300px;
+  overflow: hidden;
+}
+
+.folder-dropdown-menu.open {
+  display: block;
+}
+
+.folder-dropdown-search {
+  padding: var(--space-sm);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.folder-dropdown-search .input-field {
+  margin: 0;
+}
+
+.folder-dropdown-options {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.folder-dropdown-option {
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  transition: all var(--transition-fast);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.folder-dropdown-option:last-child {
+  border-bottom: none;
+}
+
+.folder-dropdown-option:hover {
+  background: var(--bg-secondary);
+}
+
+.folder-dropdown-option.create-new {
+  color: var(--primary-emerald);
+  font-weight: var(--font-medium);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.1));
+}
+
+.folder-dropdown-option.create-new:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.15));
+}
+
+.folder-dropdown-option i {
+  flex-shrink: 0;
+}
+
 /* Mobile Filter Toggle Button */
 .mobile-filter-toggle {
   display: none;
