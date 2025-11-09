@@ -1047,7 +1047,15 @@ document.addEventListener('click', (e) => {
 });
 
 // Allow clicking on main input to open dropdown
-qrFolderInput.addEventListener('click', () => {
+qrFolderInput.addEventListener('click', (e) => {
+  e.stopPropagation();
+  folderDropdownMenu.classList.add('open');
+  folderSearchInput.focus();
+  renderFolderOptions();
+});
+
+// Also allow focusing the input to open dropdown
+qrFolderInput.addEventListener('focus', () => {
   folderDropdownMenu.classList.add('open');
   folderSearchInput.focus();
   renderFolderOptions();
