@@ -209,21 +209,17 @@ function renderQRCodes() {
   if (unassigned.length > 0) {
     if (folderNames.length > 0) {
       html += `
-        <div style="margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--border-color);">
+        <div style="clear: both; margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--border-color);">
           <h3 style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin-bottom: var(--space-lg); display: flex; align-items: center; gap: var(--space-sm);">
             <i data-lucide="file" style="width: 20px; height: 20px; color: var(--text-secondary);"></i>
             Unassigned QR Codes
-            <span style="color: var(--text-tertiary); font-size: var(--text-sm); font-weight: var(--font-normal);">${unassigned.length}</span>
+            <span style="color: var(--text-tertiary); font-size: var(--text-sm); font-weight: var(--font-normal);">(${unassigned.length})</span>
           </h3>
-          <div class="dashboard-grid">
-            ${unassigned.map(qr => createQRCard(qr)).join('')}
-          </div>
         </div>
       `;
-    } else {
-      // If no folders, just show QR codes without section header
-      html = `<div class="dashboard-grid">${unassigned.map(qr => createQRCard(qr)).join('')}</div>`;
     }
+    // Always render in a separate grid below folders
+    html += `<div class="dashboard-grid">${unassigned.map(qr => createQRCard(qr)).join('')}</div>`;
   }
 
   qrGrid.innerHTML = html;
