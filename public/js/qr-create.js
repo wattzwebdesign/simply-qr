@@ -309,6 +309,7 @@ function collectFormData() {
 // Client-side preview generation
 let previewTimeout = null;
 let isGeneratingPreview = false;
+let previewRetryCount = 0;
 
 function generatePreview(showErrors = true) {
   const data = collectFormData();
@@ -324,14 +325,24 @@ function generatePreview(showErrors = true) {
 
   // Check if QRCode library is loaded
   if (typeof QRCode === 'undefined') {
-    console.error('QRCode library not loaded yet');
-    if (showErrors) {
-      previewContainer.innerHTML = '<p style="color: var(--text-tertiary);">Loading preview...</p>';
+    if (previewRetryCount < 10) {
+      if (showErrors) {
+        previewContainer.innerHTML = '<p style="color: var(--text-tertiary);">Loading preview...</p>';
+      }
+      // Retry after a short delay (max 10 times = 1 second)
+      previewRetryCount++;
+      setTimeout(() => generatePreview(showErrors), 100);
+    } else {
+      console.error('QRCode library failed to load after 10 retries');
+      if (showErrors) {
+        previewContainer.innerHTML = '<p style="color: var(--error);">Failed to load QR library</p>';
+      }
     }
-    // Retry after a short delay
-    setTimeout(() => generatePreview(showErrors), 100);
     return;
   }
+
+  // Reset retry count on successful load
+  previewRetryCount = 0;
 
   isGeneratingPreview = true;
   previewContainer.innerHTML = '<div class="spinner" style="margin: 0 auto;"></div><p style="color: var(--text-tertiary); margin-top: var(--space-md);">Generating preview...</p>';

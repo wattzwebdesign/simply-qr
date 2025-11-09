@@ -155,12 +155,15 @@ function renderQRCodes() {
 }
 
 // Generate QR codes on canvas elements
-function generateQRCodesOnCanvas() {
+function generateQRCodesOnCanvas(retryCount = 0) {
   // Check if QRCode library is loaded
   if (typeof QRCode === 'undefined') {
-    console.error('QRCode library not loaded yet');
-    // Retry after a short delay
-    setTimeout(generateQRCodesOnCanvas, 100);
+    if (retryCount < 10) {
+      // Retry after a short delay (max 10 times = 1 second)
+      setTimeout(() => generateQRCodesOnCanvas(retryCount + 1), 100);
+    } else {
+      console.error('QRCode library failed to load after 10 retries');
+    }
     return;
   }
 

@@ -13,9 +13,6 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- QRCode.js Library -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-
   <!-- Styles -->
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -218,6 +215,8 @@
   </div>
 
   <!-- JavaScript -->
+  <!-- QRCode.js Library - Load before qr-create.js -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="/js/qr-create.js"></script>
   <script>
     // Initialize Lucide icons
