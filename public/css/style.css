@@ -894,14 +894,28 @@ select.input-field {
 
 /* Responsive */
 @media (max-width: 768px) {
+  /* Prevent horizontal scroll */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
   /* Show mobile bottom navigation */
   .mobile-bottom-nav {
     display: block;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Add bottom padding to body to account for bottom nav */
   body {
-    padding-bottom: 65px;
+    padding-bottom: calc(65px + env(safe-area-inset-bottom));
+  }
+
+  /* Ensure main content doesn't overflow */
+  .main-content {
+    padding: var(--space-md);
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   /* Hide desktop navigation links on mobile */
