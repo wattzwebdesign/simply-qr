@@ -37,14 +37,28 @@ async function initializeDatabase() {
 
     // Add first_name and last_name columns if they don't exist (for existing databases)
     try {
-      await connection.query(`
-        ALTER TABLE users
-        ADD COLUMN IF NOT EXISTS first_name VARCHAR(255),
-        ADD COLUMN IF NOT EXISTS last_name VARCHAR(255)
+      // Check if columns exist first
+      const [columns] = await connection.query(`
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = 'users'
+        AND COLUMN_NAME IN ('first_name', 'last_name')
       `);
+
+      const existingColumns = columns.map(col => col.COLUMN_NAME);
+
+      if (!existingColumns.includes('first_name')) {
+        await connection.query(`ALTER TABLE users ADD COLUMN first_name VARCHAR(255)`);
+        console.log('Added first_name column to users table');
+      }
+
+      if (!existingColumns.includes('last_name')) {
+        await connection.query(`ALTER TABLE users ADD COLUMN last_name VARCHAR(255)`);
+        console.log('Added last_name column to users table');
+      }
     } catch (err) {
-      // Columns may already exist, ignore error
-      console.log('User name columns already exist or not needed');
+      console.log('Error adding name columns:', err.message);
     }
 
     // Create qr_codes table
