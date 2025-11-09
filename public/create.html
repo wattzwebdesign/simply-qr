@@ -186,15 +186,29 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="qr-error-correction">Error Correction</label>
-            <select id="qr-error-correction" class="input-field">
-              <option value="L">Low (7%)</option>
-              <option value="M" selected>Medium (15%)</option>
-              <option value="Q">Quartile (25%)</option>
-              <option value="H">High (30%)</option>
-            </select>
-            <p class="form-helper">Higher levels allow the QR code to be read even if damaged</p>
+            <label class="form-label" for="qr-top-text">Top Text (optional)</label>
+            <input
+              type="text"
+              id="qr-top-text"
+              class="input-field"
+              placeholder="Text above QR code"
+              maxlength="50"
+            >
           </div>
+
+          <div class="form-group">
+            <label class="form-label" for="qr-bottom-text">Bottom Text (optional)</label>
+            <input
+              type="text"
+              id="qr-bottom-text"
+              class="input-field"
+              placeholder="Text below QR code"
+              maxlength="50"
+            >
+          </div>
+
+          <!-- Hidden error correction field (always Q/25%) -->
+          <input type="hidden" id="qr-error-correction" value="Q">
         </div>
 
         <!-- Form Actions -->
@@ -224,12 +238,36 @@
           Generate Preview
         </button>
       </div>
+
+      <div style="margin-top: var(--space-lg);">
+        <label class="form-label" style="margin-bottom: var(--space-sm);">Download As</label>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-sm);">
+          <button type="button" class="btn btn-secondary btn-sm" id="download-png">
+            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+            PNG
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" id="download-jpg">
+            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+            JPG
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" id="download-svg">
+            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+            SVG
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" id="download-pdf">
+            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+            PDF
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- JavaScript -->
   <!-- QRCode.js Library - Load before qr-create.js -->
   <script src="/js/qrcode-bundle.js"></script>
+  <!-- jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="/js/qr-create.js"></script>
   <script>
     // Initialize Lucide icons

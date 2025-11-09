@@ -50,10 +50,16 @@ const qrColorDarkText = document.getElementById('qr-color-dark-text');
 const qrColorLight = document.getElementById('qr-color-light');
 const qrColorLightText = document.getElementById('qr-color-light-text');
 const qrErrorCorrection = document.getElementById('qr-error-correction');
+const qrTopText = document.getElementById('qr-top-text');
+const qrBottomText = document.getElementById('qr-bottom-text');
 const previewContainer = document.getElementById('preview-container');
 const generatePreviewBtn = document.getElementById('generate-preview-btn');
 const alertContainer = document.getElementById('alert-container');
 const saveBtn = document.getElementById('save-btn');
+const downloadPngBtn = document.getElementById('download-png');
+const downloadJpgBtn = document.getElementById('download-jpg');
+const downloadSvgBtn = document.getElementById('download-svg');
+const downloadPdfBtn = document.getElementById('download-pdf');
 
 // Content field templates
 const contentFieldTemplates = {
@@ -319,7 +325,9 @@ function collectFormData() {
     size: 300, // Fixed size
     error_correction: qrErrorCorrection.value,
     is_favorite: qrFavoriteInput.checked,
-    short_code: currentShortCode  // Include the generated short code
+    short_code: currentShortCode,  // Include the generated short code
+    top_text: qrTopText.value || null,
+    bottom_text: qrBottomText.value || null
   };
 }
 
@@ -370,10 +378,42 @@ function generatePreview(showErrors = true) {
     const appUrl = window.location.origin;
     const shortUrl = `${appUrl}/r/${currentShortCode}`;
 
-    // Clear preview container and create canvas
+    // Clear preview container
     previewContainer.innerHTML = '';
+
+    // Create wrapper div
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'flex';
+    wrapper.style.flexDirection = 'column';
+    wrapper.style.alignItems = 'center';
+    wrapper.style.gap = '12px';
+
+    // Add top text if present
+    if (data.top_text) {
+      const topText = document.createElement('div');
+      topText.textContent = data.top_text;
+      topText.style.fontSize = '16px';
+      topText.style.fontWeight = '600';
+      topText.style.color = '#111827';
+      topText.style.textAlign = 'center';
+      wrapper.appendChild(topText);
+    }
+
+    // Create canvas
     const canvas = document.createElement('canvas');
-    previewContainer.appendChild(canvas);
+    wrapper.appendChild(canvas);
+
+    // Add bottom text if present
+    if (data.bottom_text) {
+      const bottomText = document.createElement('div');
+      bottomText.textContent = data.bottom_text;
+      bottomText.style.fontSize = '14px';
+      bottomText.style.color = '#6b7280';
+      bottomText.style.textAlign = 'center';
+      wrapper.appendChild(bottomText);
+    }
+
+    previewContainer.appendChild(wrapper);
 
     // Generate QR code client-side
     QRCode.toCanvas(canvas, shortUrl, {
@@ -383,7 +423,7 @@ function generatePreview(showErrors = true) {
         dark: data.color_dark || '#000000',
         light: data.color_light || '#ffffff'
       },
-      errorCorrectionLevel: data.error_correction || 'M'
+      errorCorrectionLevel: data.error_correction || 'Q'
     }, (error) => {
       if (error) {
         console.error('QR generation error:', error);
@@ -417,8 +457,237 @@ generatePreviewBtn.addEventListener('click', () => {
   generatePreview(true);
 });
 
+// Download functions
+async function createDownloadCanvas() {
+  const data = collectFormData();
+  const appUrl = window.location.origin;
+  const shortUrl = `${appUrl}/r/${currentShortCode}`;
+
+  // Create a temporary container
+  const tempContainer = document.createElement('div');
+  tempContainer.style.position = 'absolute';
+  tempContainer.style.left = '-9999px';
+  document.body.appendChild(tempContainer);
+
+  // Calculate dimensions
+  const qrSize = 600; // High resolution
+  const padding = 40;
+  const topTextHeight = data.top_text ? 50 : 0;
+  const bottomTextHeight = data.bottom_text ? 40 : 0;
+  const totalHeight = qrSize + topTextHeight + bottomTextHeight + (padding * 2);
+  const totalWidth = qrSize + (padding * 2);
+
+  // Create final canvas
+  const finalCanvas = document.createElement('canvas');
+  finalCanvas.width = totalWidth;
+  finalCanvas.height = totalHeight;
+  const ctx = finalCanvas.getContext('2d');
+
+  // Fill background
+  ctx.fillStyle = data.color_light || '#ffffff';
+  ctx.fillRect(0, 0, totalWidth, totalHeight);
+
+  // Add top text
+  let currentY = padding;
+  if (data.top_text) {
+    ctx.fillStyle = '#111827';
+    ctx.font = 'bold 32px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(data.top_text, totalWidth / 2, currentY + 30);
+    currentY += topTextHeight;
+  }
+
+  // Generate QR code
+  const qrCanvas = document.createElement('canvas');
+  await new Promise((resolve, reject) => {
+    QRCode.toCanvas(qrCanvas, shortUrl, {
+      width: qrSize,
+      margin: 2,
+      color: {
+        dark: data.color_dark || '#000000',
+        light: data.color_light || '#ffffff'
+      },
+      errorCorrectionLevel: data.error_correction || 'Q'
+    }, (error) => {
+      if (error) reject(error);
+      else resolve();
+    });
+  });
+
+  // Draw QR code on final canvas
+  ctx.drawImage(qrCanvas, padding, currentY, qrSize, qrSize);
+  currentY += qrSize;
+
+  // Add bottom text
+  if (data.bottom_text) {
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '24px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(data.bottom_text, totalWidth / 2, currentY + 30);
+  }
+
+  document.body.removeChild(tempContainer);
+  return finalCanvas;
+}
+
+// PNG Download
+downloadPngBtn.addEventListener('click', async () => {
+  try {
+    const canvas = await createDownloadCanvas();
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${qrNameInput.value.replace(/[^a-z0-9]/gi, '_')}.png`;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+  } catch (error) {
+    console.error('PNG download error:', error);
+    alert('Failed to download PNG');
+  }
+});
+
+// JPG Download
+downloadJpgBtn.addEventListener('click', async () => {
+  try {
+    const canvas = await createDownloadCanvas();
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${qrNameInput.value.replace(/[^a-z0-9]/gi, '_')}.jpg`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }, 'image/jpeg', 0.95);
+  } catch (error) {
+    console.error('JPG download error:', error);
+    alert('Failed to download JPG');
+  }
+});
+
+// SVG Download
+downloadSvgBtn.addEventListener('click', async () => {
+  try {
+    const data = collectFormData();
+    const appUrl = window.location.origin;
+    const shortUrl = `${appUrl}/r/${currentShortCode}`;
+
+    // Use QRCode library to generate data URL
+    const qrDataUrl = await QRCode.toString(shortUrl, {
+      type: 'svg',
+      width: 600,
+      margin: 2,
+      color: {
+        dark: data.color_dark || '#000000',
+        light: data.color_light || '#ffffff'
+      },
+      errorCorrectionLevel: data.error_correction || 'Q'
+    });
+
+    // Add text elements to SVG if needed
+    let svgContent = qrDataUrl;
+
+    // Basic implementation - wrap QR in SVG with text
+    if (data.top_text || data.bottom_text) {
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(qrDataUrl, 'image/svg+xml');
+      const svg = svgDoc.documentElement;
+
+      // Adjust viewBox for text
+      const viewBox = svg.getAttribute('viewBox').split(' ');
+      let newHeight = parseInt(viewBox[3]);
+      let yOffset = 0;
+
+      if (data.top_text) {
+        yOffset = 60;
+        newHeight += 60;
+      }
+      if (data.bottom_text) {
+        newHeight += 50;
+      }
+
+      svg.setAttribute('viewBox', `0 0 ${viewBox[2]} ${newHeight}`);
+
+      // Move existing QR down if top text exists
+      if (data.top_text) {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('transform', `translate(0, ${yOffset})`);
+        while (svg.firstChild) {
+          g.appendChild(svg.firstChild);
+        }
+        svg.appendChild(g);
+
+        // Add top text
+        const topText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        topText.setAttribute('x', viewBox[2] / 2);
+        topText.setAttribute('y', '40');
+        topText.setAttribute('text-anchor', 'middle');
+        topText.setAttribute('font-size', '32');
+        topText.setAttribute('font-weight', 'bold');
+        topText.setAttribute('fill', '#111827');
+        topText.textContent = data.top_text;
+        svg.insertBefore(topText, svg.firstChild);
+      }
+
+      // Add bottom text
+      if (data.bottom_text) {
+        const bottomText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        bottomText.setAttribute('x', viewBox[2] / 2);
+        bottomText.setAttribute('y', newHeight - 20);
+        bottomText.setAttribute('text-anchor', 'middle');
+        bottomText.setAttribute('font-size', '24');
+        bottomText.setAttribute('fill', '#6b7280');
+        bottomText.textContent = data.bottom_text;
+        svg.appendChild(bottomText);
+      }
+
+      svgContent = new XMLSerializer().serializeToString(svg);
+    }
+
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${qrNameInput.value.replace(/[^a-z0-9]/gi, '_')}.svg`;
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('SVG download error:', error);
+    alert('Failed to download SVG');
+  }
+});
+
+// PDF Download
+downloadPdfBtn.addEventListener('click', async () => {
+  try {
+    const canvas = await createDownloadCanvas();
+    const imgData = canvas.toDataURL('image/png');
+
+    // Calculate PDF dimensions (A4 or custom)
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = imgWidth / imgHeight;
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({
+      orientation: ratio > 1 ? 'landscape' : 'portrait',
+      unit: 'px',
+      format: [imgWidth, imgHeight]
+    });
+
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    pdf.save(`${qrNameInput.value.replace(/[^a-z0-9]/gi, '_')}.pdf`);
+  } catch (error) {
+    console.error('PDF download error:', error);
+    alert('Failed to download PDF');
+  }
+});
+
 // Live preview on input changes
 qrNameInput.addEventListener('input', schedulePreview);
+qrTopText.addEventListener('input', schedulePreview);
+qrBottomText.addEventListener('input', schedulePreview);
 qrTypeSelect.addEventListener('change', () => {
   updateContentFields();
   schedulePreview();
@@ -595,6 +864,10 @@ async function loadQRCode() {
         qrColorLight.value = qr.color_light;
         qrColorLightText.value = qr.color_light;
         qrErrorCorrection.value = qr.error_correction;
+
+        // Load text fields
+        if (qr.top_text) qrTopText.value = qr.top_text;
+        if (qr.bottom_text) qrBottomText.value = qr.bottom_text;
 
         // Generate preview after loading data
         setTimeout(() => {
