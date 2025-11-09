@@ -188,19 +188,17 @@ function renderQRCodes() {
 
   let html = '';
 
-  // Render folders first as clickable cards (like Google Drive)
+  // Render folders first as compact rows (like Google Drive)
   const folderNames = Object.keys(folderGroups).sort();
   if (folderNames.length > 0) {
-    html += `<div class="dashboard-grid" style="margin-bottom: var(--space-xl);">`;
+    html += `<div style="margin-bottom: var(--space-xl);">`;
     folderNames.forEach(folderName => {
       const qrCodes = folderGroups[folderName];
       html += `
         <div class="folder-card" onclick="window.dashboardFunctions.openFolder('${escapeHtml(folderName).replace(/'/g, "\\'")}')">
-          <div style="display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-md);">
-            <i data-lucide="folder" style="width: 48px; height: 48px; color: var(--primary-emerald);"></i>
-          </div>
-          <h3 style="font-size: var(--text-md); font-weight: var(--font-semibold); margin: 0 0 var(--space-xs) 0; text-align: center;">${escapeHtml(folderName)}</h3>
-          <p style="color: var(--text-tertiary); font-size: var(--text-sm); text-align: center; margin: 0;">${qrCodes.length} ${qrCodes.length === 1 ? 'code' : 'codes'}</p>
+          <i data-lucide="folder" style="width: 20px; height: 20px; color: var(--primary-emerald);"></i>
+          <span style="font-weight: var(--font-medium);">${escapeHtml(folderName)}</span>
+          <span style="color: var(--text-tertiary); font-size: var(--text-sm);">(${qrCodes.length})</span>
         </div>
       `;
     });
