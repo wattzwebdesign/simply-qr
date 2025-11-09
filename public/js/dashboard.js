@@ -143,12 +143,15 @@ function renderQRCodes() {
   emptyState.classList.add('hidden');
   qrGrid.classList.remove('hidden');
 
+  // Remove dashboard-grid class from qr-grid since it will contain divs
+  qrGrid.classList.remove('dashboard-grid');
+
   // If viewing a specific folder, show breadcrumb and only that folder's contents
   if (currentFolder) {
     const folderQRs = filteredQRCodes.filter(qr => qr.folder === currentFolder);
 
     let html = `
-      <div style="grid-column: 1 / -1; margin-bottom: var(--space-lg);">
+      <div style="margin-bottom: var(--space-lg);">
         <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
           <button onclick="window.dashboardFunctions.viewAllFolders()" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: var(--space-xs);">
             <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
@@ -158,9 +161,9 @@ function renderQRCodes() {
           <h2 style="font-size: var(--text-xl); font-weight: var(--font-semibold); margin: 0;">${escapeHtml(currentFolder)}</h2>
           <span style="color: var(--text-tertiary); font-size: var(--text-sm);">${folderQRs.length} ${folderQRs.length === 1 ? 'code' : 'codes'}</span>
         </div>
-        <div class="dashboard-grid">
-          ${folderQRs.map(qr => createQRCard(qr)).join('')}
-        </div>
+      </div>
+      <div class="dashboard-grid">
+        ${folderQRs.map(qr => createQRCard(qr)).join('')}
       </div>
     `;
 
@@ -188,7 +191,7 @@ function renderQRCodes() {
 
   let html = '';
 
-  // Render folders first as compact rows (like Google Drive)
+  // Render folders first as compact rows (like Google Drive) - separate div
   const folderNames = Object.keys(folderGroups).sort();
   if (folderNames.length > 0) {
     html += `<div style="margin-bottom: var(--space-xl);">`;
@@ -205,7 +208,7 @@ function renderQRCodes() {
     html += `</div>`;
   }
 
-  // Render unassigned QR codes in a separate section
+  // Render unassigned QR codes in a separate section - separate div
   if (unassigned.length > 0) {
     html += `<div>`;
     if (folderNames.length > 0) {
