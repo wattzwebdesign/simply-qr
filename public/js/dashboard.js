@@ -305,11 +305,16 @@ function generateQRCodesOnCanvas(retryCount = 0) {
     const canvas = document.getElementById(`qr-canvas-${qr.id}`);
     if (!canvas) return;
 
-    // All QR codes are dynamic, so use short URL
-    const appUrl = window.location.origin;
-    const shortUrl = `${appUrl}/r/${qr.short_code}`;
+    // Determine what data to encode: URL types use short URL (dynamic), others use content directly
+    let qrData;
+    if (qr.type === 'url' && qr.short_code) {
+      const appUrl = window.location.origin;
+      qrData = `${appUrl}/r/${qr.short_code}`;
+    } else {
+      qrData = qr.content;
+    }
 
-    QRCode.toCanvas(canvas, shortUrl, {
+    QRCode.toCanvas(canvas, qrData, {
       width: 200,
       margin: 1,
       color: {
@@ -479,10 +484,17 @@ async function downloadQRCode(qrId) {
 
   // Generate QR code at higher resolution for download
   const canvas = document.createElement('canvas');
-  const appUrl = window.location.origin;
-  const shortUrl = `${appUrl}/r/${qr.short_code}`;
 
-  QRCode.toCanvas(canvas, shortUrl, {
+  // Determine what data to encode: URL types use short URL (dynamic), others use content directly
+  let qrData;
+  if (qr.type === 'url' && qr.short_code) {
+    const appUrl = window.location.origin;
+    qrData = `${appUrl}/r/${qr.short_code}`;
+  } else {
+    qrData = qr.content;
+  }
+
+  QRCode.toCanvas(canvas, qrData, {
     width: qr.size || 300,
     margin: 2,
     color: {

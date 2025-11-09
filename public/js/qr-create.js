@@ -192,6 +192,13 @@ function updateContentFields() {
   const type = qrTypeSelect.value;
   contentFields.innerHTML = contentFieldTemplates[type] || '';
   lucide.createIcons();
+
+  // Show/hide short URL display based on type (only URL types are dynamic)
+  if (type === 'url') {
+    shortUrlDisplay.style.display = 'block';
+  } else {
+    shortUrlDisplay.style.display = 'none';
+  }
 }
 
 // Sync color pickers with text inputs
@@ -456,9 +463,15 @@ function generatePreview(showErrors = true) {
   previewContainer.innerHTML = '<div class="spinner" style="margin: 0 auto;"></div><p style="color: var(--text-tertiary); margin-top: var(--space-md);">Generating preview...</p>';
 
   try {
-    // Generate QR code showing the short URL (dynamic)
-    const appUrl = window.location.origin;
-    const shortUrl = `${appUrl}/r/${currentShortCode}`;
+    // Determine what data to encode in the QR code
+    // For URL types, use short URL (dynamic). For others (SMS, Email, etc.), use actual content
+    let qrData;
+    if (data.type === 'url') {
+      const appUrl = window.location.origin;
+      qrData = `${appUrl}/r/${currentShortCode}`;
+    } else {
+      qrData = data.content;
+    }
 
     // Clear preview container
     previewContainer.innerHTML = '';
@@ -467,7 +480,7 @@ function generatePreview(showErrors = true) {
     const qrCanvas = document.createElement('canvas');
 
     // Generate QR code client-side
-    QRCode.toCanvas(qrCanvas, shortUrl, {
+    QRCode.toCanvas(qrCanvas, qrData, {
       width: data.size || 300,
       margin: 2,
       color: {
@@ -522,13 +535,21 @@ generatePreviewBtn.addEventListener('click', () => {
 // Download functions
 async function createDownloadCanvas() {
   const data = collectFormData();
-  const appUrl = window.location.origin;
-  const shortUrl = `${appUrl}/r/${currentShortCode}`;
+
+  // Determine what data to encode in the QR code
+  // For URL types, use short URL (dynamic). For others (SMS, Email, etc.), use actual content
+  let qrData;
+  if (data.type === 'url') {
+    const appUrl = window.location.origin;
+    qrData = `${appUrl}/r/${currentShortCode}`;
+  } else {
+    qrData = data.content;
+  }
 
   // Generate QR code at high resolution
   const qrCanvas = document.createElement('canvas');
   await new Promise((resolve, reject) => {
-    QRCode.toCanvas(qrCanvas, shortUrl, {
+    QRCode.toCanvas(qrCanvas, qrData, {
       width: 600,
       margin: 2,
       color: {

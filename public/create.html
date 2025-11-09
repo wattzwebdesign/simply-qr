@@ -151,8 +151,8 @@
             </label>
           </div>
 
-          <!-- All QR codes are now dynamic - show short URL -->
-          <div class="form-group" id="short-url-display">
+          <!-- Show short URL only for URL types (dynamic QR codes) -->
+          <div class="form-group" id="short-url-display" style="display: none;">
             <label class="form-label">
               <i data-lucide="link" style="width: 14px; height: 14px; display: inline;"></i>
               Short URL (permanent link in QR code)
@@ -162,7 +162,7 @@
                 <span id="short-url-value">Generating...</span>
               </div>
             </div>
-            <p class="form-helper">✓ All QR codes are dynamic. The QR contains this short URL. You can change where it redirects anytime!</p>
+            <p class="form-helper">✓ This is a dynamic QR code. The QR contains this short URL. You can change where it redirects anytime!</p>
           </div>
         </div>
 

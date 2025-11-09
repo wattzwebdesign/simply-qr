@@ -141,8 +141,8 @@ async function createQRCode(req, res) {
       is_favorite = false
     } = req.body;
 
-    // All QR codes are now ALWAYS dynamic
-    const is_dynamic = true;
+    // Only URL types are dynamic (others like SMS, Email, Phone, WiFi, vCard encode data directly)
+    const is_dynamic = type === 'url';
 
     // Validate required fields
     if (!name || !type || !content) {
