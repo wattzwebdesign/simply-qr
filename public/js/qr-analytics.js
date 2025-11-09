@@ -96,8 +96,10 @@ async function loadQRAnalytics() {
 
 // Render QR analytics data
 function renderQRAnalytics(qrcode, analytics) {
-  // Update page title and QR info
-  document.getElementById('page-title').textContent = `${qrcode.name} - Analytics`;
+  // Update page title
+  document.title = `${qrcode.name} - Analytics - SimplyQR`;
+
+  // Update QR info
   document.getElementById('qr-name').textContent = qrcode.name;
 
   // Update QR type badge
