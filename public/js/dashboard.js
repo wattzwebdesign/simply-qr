@@ -27,16 +27,20 @@ let filteredQRCodes = [];
 let currentFolder = null; // Track if we're viewing a specific folder
 
 // Mobile filter toggle
-mobileFilterToggle.addEventListener('click', () => {
-  sidebar.classList.add('open');
-  sidebarOverlay.classList.add('open');
-});
+if (mobileFilterToggle) {
+  mobileFilterToggle.addEventListener('click', () => {
+    sidebar.classList.add('open');
+    sidebarOverlay.classList.add('open');
+  });
+}
 
 // Close sidebar when clicking overlay
-sidebarOverlay.addEventListener('click', () => {
-  sidebar.classList.remove('open');
-  sidebarOverlay.classList.remove('open');
-});
+if (sidebarOverlay) {
+  sidebarOverlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    sidebarOverlay.classList.remove('open');
+  });
+}
 
 // Close sidebar when applying filters on mobile
 function closeMobileSidebar() {
@@ -563,5 +567,9 @@ sortFilter.addEventListener('change', () => {
   closeMobileSidebar();
 });
 
-// Initial load
-fetchQRCodes();
+// Initial load - wait for DOM to be ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', fetchQRCodes);
+} else {
+  fetchQRCodes();
+}

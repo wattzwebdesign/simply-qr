@@ -11,7 +11,6 @@ async function loadNavigationIncludes() {
       if (response.ok) {
         const html = await response.text();
         headerPlaceholder.innerHTML = html;
-        lucide.createIcons();
       }
     } catch (error) {
       console.error('Error loading header:', error);
@@ -26,10 +25,18 @@ async function loadNavigationIncludes() {
       if (response.ok) {
         const html = await response.text();
         mobileNavPlaceholder.innerHTML = html;
-        lucide.createIcons();
       }
     } catch (error) {
       console.error('Error loading mobile nav:', error);
+    }
+  }
+
+  // Initialize Lucide icons once after all HTML is loaded
+  if (typeof lucide !== 'undefined' && lucide.createIcons) {
+    try {
+      lucide.createIcons();
+    } catch (error) {
+      console.error('Error initializing Lucide icons:', error);
     }
   }
 }
