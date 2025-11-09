@@ -49,8 +49,6 @@ const qrColorDark = document.getElementById('qr-color-dark');
 const qrColorDarkText = document.getElementById('qr-color-dark-text');
 const qrColorLight = document.getElementById('qr-color-light');
 const qrColorLightText = document.getElementById('qr-color-light-text');
-const qrSizeInput = document.getElementById('qr-size');
-const sizeValue = document.getElementById('size-value');
 const qrErrorCorrection = document.getElementById('qr-error-correction');
 const previewContainer = document.getElementById('preview-container');
 const generatePreviewBtn = document.getElementById('generate-preview-btn');
@@ -211,9 +209,7 @@ qrColorLightText.addEventListener('input', (e) => {
 });
 
 // Update size value display
-qrSizeInput.addEventListener('input', (e) => {
-  sizeValue.textContent = e.target.value;
-});
+// Size is now fixed at 300px
 
 // Type change handler
 qrTypeSelect.addEventListener('change', updateContentFields);
@@ -299,7 +295,7 @@ function collectFormData() {
     notes: qrNotesInput.value || null,
     color_dark: qrColorDark.value,
     color_light: qrColorLight.value,
-    size: parseInt(qrSizeInput.value),
+    size: 300, // Fixed size
     error_correction: qrErrorCorrection.value,
     is_favorite: qrFavoriteInput.checked,
     short_code: currentShortCode  // Include the generated short code
@@ -408,7 +404,6 @@ qrTypeSelect.addEventListener('change', () => {
 });
 qrColorDark.addEventListener('input', schedulePreview);
 qrColorLight.addEventListener('input', schedulePreview);
-qrSizeInput.addEventListener('input', schedulePreview);
 qrErrorCorrection.addEventListener('change', schedulePreview);
 
 // Listen for content field changes (delegate since they're dynamic)
@@ -569,8 +564,6 @@ async function loadQRCode() {
         qrColorDarkText.value = qr.color_dark;
         qrColorLight.value = qr.color_light;
         qrColorLightText.value = qr.color_light;
-        qrSizeInput.value = qr.size;
-        sizeValue.textContent = qr.size;
         qrErrorCorrection.value = qr.error_correction;
 
         // Generate preview after loading data

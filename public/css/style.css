@@ -613,6 +613,60 @@ select.input-field {
   .auth-box {
     padding: var(--space-xl);
   }
+
+  /* Create/Edit page mobile */
+  .dashboard-header {
+    flex-wrap: wrap;
+    padding: var(--space-md);
+    gap: var(--space-md);
+  }
+
+  .dashboard-header > div {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .dashboard-header h1 {
+    font-size: var(--text-xl) !important;
+  }
+
+  .dashboard-header h2 {
+    font-size: var(--text-md) !important;
+  }
+
+  /* Hide preview section on mobile or make it collapsible */
+  body > div[style*="display: flex"] {
+    flex-direction: column !important;
+  }
+
+  body > div[style*="width: 400px"] {
+    width: 100% !important;
+    position: relative !important;
+    height: auto !important;
+    border-left: none !important;
+    border-top: 1px solid var(--border-color) !important;
+    padding: var(--space-lg) !important;
+  }
+
+  /* Form section mobile */
+  body > div > div[style*="flex: 1"] {
+    max-width: 100% !important;
+    padding: var(--space-lg) !important;
+  }
+
+  .qr-card {
+    min-width: unset;
+  }
+
+  .qr-card-actions {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .qr-card-actions button,
+  .qr-card-actions a {
+    width: 100%;
+  }
 }
 
 /* Favorite Star */

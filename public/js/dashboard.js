@@ -131,7 +131,7 @@ function applyFilters() {
   renderQRCodes();
 }
 
-// Render QR codes
+// Render QR codes with folder organization
 function renderQRCodes() {
   if (filteredQRCodes.length === 0) {
     qrGrid.classList.add('hidden');
@@ -142,7 +142,62 @@ function renderQRCodes() {
   emptyState.classList.add('hidden');
   qrGrid.classList.remove('hidden');
 
-  qrGrid.innerHTML = filteredQRCodes.map(qr => createQRCard(qr)).join('');
+  // Group QR codes by folder
+  const folderGroups = {};
+  const unassigned = [];
+
+  filteredQRCodes.forEach(qr => {
+    if (qr.folder && qr.folder.trim()) {
+      if (!folderGroups[qr.folder]) {
+        folderGroups[qr.folder] = [];
+      }
+      folderGroups[qr.folder].push(qr);
+    } else {
+      unassigned.push(qr);
+    }
+  });
+
+  let html = '';
+
+  // Render folders first
+  Object.keys(folderGroups).sort().forEach(folderName => {
+    const qrCodes = folderGroups[folderName];
+    html += `
+      <div style="grid-column: 1 / -1; margin-bottom: var(--space-md);">
+        <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md); padding: var(--space-md); background: var(--bg-secondary); border-radius: var(--radius-md);">
+          <i data-lucide="folder" style="width: 20px; height: 20px; color: var(--primary-emerald);"></i>
+          <h3 style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin: 0;">${escapeHtml(folderName)}</h3>
+          <span style="color: var(--text-tertiary); font-size: var(--text-sm); margin-left: auto;">${qrCodes.length} ${qrCodes.length === 1 ? 'code' : 'codes'}</span>
+        </div>
+        <div class="dashboard-grid">
+          ${qrCodes.map(qr => createQRCard(qr)).join('')}
+        </div>
+      </div>
+    `;
+  });
+
+  // Render unassigned QR codes
+  if (unassigned.length > 0) {
+    if (Object.keys(folderGroups).length > 0) {
+      html += `
+        <div style="grid-column: 1 / -1; margin-bottom: var(--space-md);">
+          <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md); padding: var(--space-md); background: var(--bg-secondary); border-radius: var(--radius-md);">
+            <i data-lucide="file" style="width: 20px; height: 20px; color: var(--text-secondary);"></i>
+            <h3 style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin: 0;">Unassigned</h3>
+            <span style="color: var(--text-tertiary); font-size: var(--text-sm); margin-left: auto;">${unassigned.length} ${unassigned.length === 1 ? 'code' : 'codes'}</span>
+          </div>
+          <div class="dashboard-grid">
+            ${unassigned.map(qr => createQRCard(qr)).join('')}
+          </div>
+        </div>
+      `;
+    } else {
+      // If no folders, just show QR codes without section header
+      html = `<div class="dashboard-grid">${unassigned.map(qr => createQRCard(qr)).join('')}</div>`;
+    }
+  }
+
+  qrGrid.innerHTML = html;
 
   // Re-initialize Lucide icons
   lucide.createIcons();
