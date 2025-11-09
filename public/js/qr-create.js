@@ -937,7 +937,14 @@ async function loadQRCode() {
   }
 }
 
-// Load folders for autocomplete
+// Folder dropdown functionality
+let allFolders = [];
+const folderDropdownTrigger = document.getElementById('folder-dropdown-trigger');
+const folderDropdownMenu = document.getElementById('folder-dropdown-menu');
+const folderSearchInput = document.getElementById('folder-search-input');
+const folderDropdownOptions = document.getElementById('folder-dropdown-options');
+
+// Load folders from API
 async function loadFolders() {
   try {
     const response = await fetch('/api/qrcodes/folders/list', {
@@ -949,20 +956,102 @@ async function loadFolders() {
     if (response.ok) {
       const data = await response.json();
       if (data.success && data.folders) {
-        const datalist = document.getElementById('folder-suggestions');
-        datalist.innerHTML = '';
-
-        data.folders.forEach(folder => {
-          const option = document.createElement('option');
-          option.value = folder;
-          datalist.appendChild(option);
-        });
+        allFolders = data.folders;
+        renderFolderOptions();
       }
     }
   } catch (error) {
     console.error('Load folders error:', error);
   }
 }
+
+// Render folder options in dropdown
+function renderFolderOptions(searchTerm = '') {
+  const filtered = searchTerm
+    ? allFolders.filter(f => f.toLowerCase().includes(searchTerm.toLowerCase()))
+    : allFolders;
+
+  let html = '';
+
+  // Show "Create new" option if search term doesn't match any existing folder
+  if (searchTerm && !allFolders.some(f => f.toLowerCase() === searchTerm.toLowerCase())) {
+    html += `
+      <div class="folder-dropdown-option create-new" data-action="create" data-value="${escapeHtml(searchTerm)}">
+        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+        <span>Create "${escapeHtml(searchTerm)}"</span>
+      </div>
+    `;
+  }
+
+  // Show existing folders
+  filtered.forEach(folder => {
+    html += `
+      <div class="folder-dropdown-option" data-action="select" data-value="${escapeHtml(folder)}">
+        <i data-lucide="folder" style="width: 16px; height: 16px;"></i>
+        <span>${escapeHtml(folder)}</span>
+      </div>
+    `;
+  });
+
+  // Show empty state
+  if (!searchTerm && allFolders.length === 0) {
+    html = `
+      <div style="padding: var(--space-lg); text-align: center; color: var(--text-tertiary);">
+        <p>No folders yet. Type to create one!</p>
+      </div>
+    `;
+  }
+
+  folderDropdownOptions.innerHTML = html;
+  lucide.createIcons();
+
+  // Add click handlers
+  document.querySelectorAll('.folder-dropdown-option').forEach(option => {
+    option.addEventListener('click', () => {
+      const value = option.dataset.value;
+      qrFolderInput.value = value;
+      folderDropdownMenu.classList.remove('open');
+      folderSearchInput.value = '';
+    });
+  });
+}
+
+// Escape HTML helper
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Toggle dropdown
+folderDropdownTrigger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  folderDropdownMenu.classList.toggle('open');
+  if (folderDropdownMenu.classList.contains('open')) {
+    folderSearchInput.focus();
+    renderFolderOptions();
+  }
+});
+
+// Search in dropdown
+folderSearchInput.addEventListener('input', (e) => {
+  renderFolderOptions(e.target.value);
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!folderDropdownMenu.contains(e.target) && !folderDropdownTrigger.contains(e.target)) {
+    folderDropdownMenu.classList.remove('open');
+    folderSearchInput.value = '';
+  }
+});
+
+// Allow clicking on main input to open dropdown
+qrFolderInput.addEventListener('click', () => {
+  folderDropdownMenu.classList.add('open');
+  folderSearchInput.focus();
+  renderFolderOptions();
+});
 
 // Initialize
 updateContentFields();
