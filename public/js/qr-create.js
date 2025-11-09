@@ -11,6 +11,23 @@ const urlPath = window.location.pathname;
 const isEditMode = urlPath.startsWith('/edit/');
 const qrId = isEditMode ? urlPath.split('/')[2] : null;
 
+// Generate short code (client-side)
+let currentShortCode = null;
+
+function generateShortCode() {
+  // Generate 8-character hex string (like backend does)
+  const array = new Uint8Array(4);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+// Initialize short code for new QR codes
+if (!isEditMode) {
+  currentShortCode = generateShortCode();
+  const appUrl = window.location.origin;
+  document.getElementById('short-url-value').textContent = `${appUrl}/r/${currentShortCode}`;
+}
+
 // Update page title
 if (isEditMode) {
   document.getElementById('page-title').textContent = 'Edit QR Code';
@@ -26,7 +43,6 @@ const qrNotesInput = document.getElementById('qr-notes');
 const qrTagsInput = document.getElementById('qr-tags');
 const qrFolderInput = document.getElementById('qr-folder');
 const qrFavoriteInput = document.getElementById('qr-favorite');
-const qrDynamicInput = document.getElementById('qr-dynamic');
 const shortUrlDisplay = document.getElementById('short-url-display');
 const shortUrlValue = document.getElementById('short-url-value');
 const qrColorDark = document.getElementById('qr-color-dark');
@@ -286,18 +302,18 @@ function collectFormData() {
     size: parseInt(qrSizeInput.value),
     error_correction: qrErrorCorrection.value,
     is_favorite: qrFavoriteInput.checked,
-    is_dynamic: qrDynamicInput.checked
+    short_code: currentShortCode  // Include the generated short code
   };
 }
 
-// Debounce function for live preview
+// Client-side preview generation
 let previewTimeout = null;
 let isGeneratingPreview = false;
 
-async function generatePreview(showErrors = true) {
+function generatePreview(showErrors = true) {
   const data = collectFormData();
 
-  if (!data.content) {
+  if (!data.content || !currentShortCode) {
     if (showErrors) {
       previewContainer.innerHTML = '<p style="color: var(--text-tertiary);">Fill in the form to see preview</p>';
     }
@@ -310,32 +326,41 @@ async function generatePreview(showErrors = true) {
   previewContainer.innerHTML = '<div class="spinner" style="margin: 0 auto;"></div><p style="color: var(--text-tertiary); margin-top: var(--space-md);">Generating preview...</p>';
 
   try {
-    const response = await fetch('/api/qrcodes/preview', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    // Generate QR code showing the short URL (dynamic)
+    const appUrl = window.location.origin;
+    const shortUrl = `${appUrl}/r/${currentShortCode}`;
+
+    // Clear preview container and create canvas
+    previewContainer.innerHTML = '';
+    const canvas = document.createElement('canvas');
+    previewContainer.appendChild(canvas);
+
+    // Generate QR code client-side
+    QRCode.toCanvas(canvas, shortUrl, {
+      width: data.size || 300,
+      margin: 2,
+      color: {
+        dark: data.color_dark || '#000000',
+        light: data.color_light || '#ffffff'
       },
-      body: JSON.stringify(data)
+      errorCorrectionLevel: data.error_correction || 'M'
+    }, (error) => {
+      if (error) {
+        console.error('QR generation error:', error);
+        if (showErrors) {
+          previewContainer.innerHTML = '<p style="color: var(--error);">Failed to generate preview</p>';
+        }
+      }
+      isGeneratingPreview = false;
     });
 
-    const result = await response.json();
-
-    if (result.success) {
-      previewContainer.innerHTML = `<img src="${result.preview}" alt="QR Code Preview" style="max-width: 100%; height: auto;">`;
-    } else {
-      if (showErrors) {
-        previewContainer.innerHTML = '<p style="color: var(--error);">Failed to generate preview</p>';
-      }
-    }
   } catch (error) {
     console.error('Preview error:', error);
     if (showErrors) {
-      previewContainer.innerHTML = '<p style="color: var(--error);">Network error</p>';
+      previewContainer.innerHTML = '<p style="color: var(--error);">Error generating preview</p>';
     }
+    isGeneratingPreview = false;
   }
-
-  isGeneratingPreview = false;
 }
 
 // Auto-preview with debounce
@@ -347,9 +372,9 @@ function schedulePreview() {
 }
 
 // Generate preview button
-generatePreviewBtn.addEventListener('click', async () => {
+generatePreviewBtn.addEventListener('click', () => {
   clearTimeout(previewTimeout);
-  await generatePreview(true);
+  generatePreview(true);
 });
 
 // Live preview on input changes
@@ -502,13 +527,12 @@ async function loadQRCode() {
         qrTagsInput.value = qr.tags ? qr.tags.join(', ') : '';
         qrFolderInput.value = qr.folder || '';
         qrFavoriteInput.checked = qr.is_favorite === 1;
-        qrDynamicInput.checked = qr.is_dynamic === 1;
 
-        // Show short URL if dynamic
-        if (qr.is_dynamic === 1 && qr.short_code) {
+        // Set current short code for editing (all QRs are dynamic now)
+        if (qr.short_code) {
+          currentShortCode = qr.short_code;
           const appUrl = window.location.origin;
           shortUrlValue.textContent = `${appUrl}/r/${qr.short_code}`;
-          shortUrlDisplay.classList.remove('hidden');
 
           // For dynamic QR codes, show redirect_url instead of content for URL types
           if (qr.type === 'url' && qr.redirect_url) {

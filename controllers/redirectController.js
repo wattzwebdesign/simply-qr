@@ -83,8 +83,15 @@ async function handleRedirect(req, res) {
       console.error('Error tracking scan:', err);
     });
 
-    // Redirect to the target URL
-    res.redirect(302, qrcode.redirect_url);
+    // Check if it's a URL type - if so, redirect directly
+    if (qrcode.type === 'url' && qrcode.redirect_url) {
+      // Direct redirect for URLs
+      res.redirect(302, qrcode.redirect_url);
+    } else {
+      // For non-URL types (WiFi, vCard, SMS, etc.), serve the QR display page
+      // The display page will render the QR code client-side
+      res.sendFile(require('path').join(__dirname, '../public/qr-display.html'));
+    }
 
   } catch (error) {
     console.error('Redirect error:', error);

@@ -138,9 +138,11 @@ async function createQRCode(req, res) {
       color_light = '#ffffff',
       size = 300,
       error_correction = 'M',
-      is_dynamic = false,
       is_favorite = false
     } = req.body;
+
+    // All QR codes are now ALWAYS dynamic
+    const is_dynamic = true;
 
     // Validate required fields
     if (!name || !type || !content) {
@@ -181,28 +183,12 @@ async function createQRCode(req, res) {
     // Format content based on type
     const formattedContent = formatQRContent(type, { content, ...req.body });
 
-    // Generate short code if dynamic
-    let shortCode = null;
-    let redirectUrl = null;
-    let qrContent = formattedContent;
+    // Always generate short code (all QRs are dynamic now)
+    const shortCode = generateShortCode();
+    const redirectUrl = formattedContent;
 
-    if (is_dynamic) {
-      shortCode = generateShortCode();
-      redirectUrl = formattedContent;
-      const appUrl = process.env.APP_URL || 'http://localhost:3000';
-      qrContent = `${appUrl}/r/${shortCode}`;
-    }
-
-    // Generate QR code image
-    const filePath = await generateQRCode({
-      content: qrContent,
-      userId,
-      name,
-      colorDark: color_dark,
-      colorLight: color_light,
-      size: parseInt(size),
-      errorCorrectionLevel: error_correction
-    });
+    // No file generation - QR codes are generated client-side on-demand
+    const filePath = null;
 
     // Save to database
     const result = await runAsync(`
@@ -307,7 +293,7 @@ async function updateQRCode(req, res) {
     // Add updated_at timestamp
     updateFields.push('updated_at = CURRENT_TIMESTAMP');
 
-    // For dynamic QR codes, if content is updated, update redirect_url instead
+    // For dynamic QR codes, if content is updated, update redirect_url as well
     if (existing.is_dynamic && updates.content) {
       const newRedirectUrl = formatQRContent(
         existing.type,
@@ -317,7 +303,7 @@ async function updateQRCode(req, res) {
         }
       );
 
-      // Update redirect_url field
+      // Update redirect_url field (keep content update too!)
       if (!updateFields.includes('redirect_url = ?')) {
         updateFields.push('redirect_url = ?');
         values.push(newRedirectUrl);
@@ -326,52 +312,11 @@ async function updateQRCode(req, res) {
         const redirectIndex = updateFields.indexOf('redirect_url = ?');
         values[redirectIndex] = newRedirectUrl;
       }
-
-      // Remove content from updates since we're using redirect_url
-      const contentIndex = updateFields.indexOf('content = ?');
-      if (contentIndex !== -1) {
-        updateFields.splice(contentIndex, 1);
-        values.splice(contentIndex, 1);
-      }
+      // Note: We keep the content field update - both content and redirect_url get updated
     }
 
-    // Check if we need to regenerate QR code (only for visual changes)
-    const needsRegeneration = ['color_dark', 'color_light', 'size', 'error_correction']
-      .some(field => updates.hasOwnProperty(field));
-
-    let newFilePath = existing.file_path;
-
-    if (needsRegeneration) {
-      // For dynamic QR codes, always use the short URL
-      const qrContent = existing.is_dynamic
-        ? `${process.env.APP_URL || 'http://localhost:3000'}/r/${existing.short_code}`
-        : formatQRContent(
-            updates.type || existing.type,
-            {
-              content: updates.content || existing.content,
-              ...updates
-            }
-          );
-
-      // Generate new QR code
-      newFilePath = await generateQRCode({
-        content: qrContent,
-        userId,
-        name: updates.name || existing.name,
-        colorDark: updates.color_dark || existing.color_dark,
-        colorLight: updates.color_light || existing.color_light,
-        size: updates.size || existing.size,
-        errorCorrectionLevel: updates.error_correction || existing.error_correction
-      });
-
-      // Delete old file
-      if (existing.file_path) {
-        await deleteQRCodeFile(existing.file_path);
-      }
-
-      updateFields.push('file_path = ?');
-      values.push(newFilePath);
-    }
+    // No QR code regeneration needed - QR codes are generated client-side on-demand
+    // Visual changes (colors, size) are stored in the database and applied when rendering
 
     // Update database
     values.push(qrId, userId);
@@ -498,11 +443,56 @@ async function previewQRCode(req, res) {
   }
 }
 
+// Get QR code by short code (public, no auth)
+async function getQRCodeByShortCode(req, res) {
+  try {
+    const { shortCode } = req.params;
+
+    const qrcode = await getAsync(
+      'SELECT * FROM qr_codes WHERE short_code = ?',
+      [shortCode]
+    );
+
+    if (!qrcode) {
+      return res.status(404).json({
+        success: false,
+        error: 'QR code not found',
+        code: 'NOT_FOUND'
+      });
+    }
+
+    // Parse tags
+    if (qrcode.tags) {
+      try {
+        qrcode.tags = JSON.parse(qrcode.tags);
+      } catch (e) {
+        qrcode.tags = [];
+      }
+    } else {
+      qrcode.tags = [];
+    }
+
+    res.json({
+      success: true,
+      qrcode
+    });
+
+  } catch (error) {
+    console.error('Get QR code by short code error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve QR code',
+      code: 'GET_QRCODE_ERROR'
+    });
+  }
+}
+
 module.exports = {
   getAllQRCodes,
   getQRCode,
   createQRCode,
   updateQRCode,
   deleteQRCode,
-  previewQRCode
+  previewQRCode,
+  getQRCodeByShortCode
 };

@@ -3,7 +3,10 @@ const router = express.Router();
 const qrController = require('../controllers/qrController');
 const { authenticateToken } = require('../middleware/auth');
 
-// All routes require authentication
+// Public route for fetching QR by short code (no auth required)
+router.get('/by-code/:shortCode', qrController.getQRCodeByShortCode);
+
+// All other routes require authentication
 router.use(authenticateToken);
 
 // QR code routes

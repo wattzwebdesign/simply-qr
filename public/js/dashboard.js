@@ -147,8 +147,35 @@ function renderQRCodes() {
   // Re-initialize Lucide icons
   lucide.createIcons();
 
+  // Generate QR codes on canvases
+  generateQRCodesOnCanvas();
+
   // Attach event listeners
   attachCardEventListeners();
+}
+
+// Generate QR codes on canvas elements
+function generateQRCodesOnCanvas() {
+  filteredQRCodes.forEach(qr => {
+    const canvas = document.getElementById(`qr-canvas-${qr.id}`);
+    if (!canvas) return;
+
+    // All QR codes are dynamic, so use short URL
+    const appUrl = window.location.origin;
+    const shortUrl = `${appUrl}/r/${qr.short_code}`;
+
+    QRCode.toCanvas(canvas, shortUrl, {
+      width: 200,
+      margin: 1,
+      color: {
+        dark: qr.color_dark || '#000000',
+        light: qr.color_light || '#ffffff'
+      },
+      errorCorrectionLevel: qr.error_correction || 'M'
+    }, (error) => {
+      if (error) console.error(`Error generating QR for ${qr.id}:`, error);
+    });
+  });
 }
 
 // Create QR card HTML
@@ -170,7 +197,7 @@ function createQRCard(qr) {
   return `
     <div class="qr-card" data-qr-id="${qr.id}">
       <div class="qr-card-image">
-        <img src="${qr.file_path}" alt="${qr.name}">
+        <canvas id="qr-canvas-${qr.id}" width="200" height="200"></canvas>
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-sm);">
@@ -299,15 +326,40 @@ async function downloadQRCode(qrId) {
   const qr = allQRCodes.find(q => q.id == qrId);
   if (!qr) return;
 
-  // Create a temporary link and trigger download
-  const link = document.createElement('a');
-  link.href = qr.file_path;
-  link.download = `${qr.name.replace(/[^a-z0-9]/gi, '_')}.png`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Generate QR code at higher resolution for download
+  const canvas = document.createElement('canvas');
+  const appUrl = window.location.origin;
+  const shortUrl = `${appUrl}/r/${qr.short_code}`;
 
-  showAlert('QR code downloaded!', 'success');
+  QRCode.toCanvas(canvas, shortUrl, {
+    width: qr.size || 300,
+    margin: 2,
+    color: {
+      dark: qr.color_dark || '#000000',
+      light: qr.color_light || '#ffffff'
+    },
+    errorCorrectionLevel: qr.error_correction || 'M'
+  }, (error) => {
+    if (error) {
+      console.error('QR generation error:', error);
+      showAlert('Failed to generate QR code', 'error');
+      return;
+    }
+
+    // Convert canvas to blob and download
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${qr.name.replace(/[^a-z0-9]/gi, '_')}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showAlert('QR code downloaded!', 'success');
+    });
+  });
 }
 
 // Delete QR code
