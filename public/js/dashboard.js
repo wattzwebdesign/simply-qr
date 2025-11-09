@@ -25,6 +25,7 @@ const qrCountDisplay = document.getElementById('qr-count-display');
 
 let allQRCodes = [];
 let filteredQRCodes = [];
+let currentFolder = null; // Track if we're viewing a specific folder
 
 // Logout handler
 logoutBtn.addEventListener('click', () => {
@@ -142,6 +143,34 @@ function renderQRCodes() {
   emptyState.classList.add('hidden');
   qrGrid.classList.remove('hidden');
 
+  // If viewing a specific folder, show breadcrumb and only that folder's contents
+  if (currentFolder) {
+    const folderQRs = filteredQRCodes.filter(qr => qr.folder === currentFolder);
+
+    let html = `
+      <div style="grid-column: 1 / -1; margin-bottom: var(--space-lg);">
+        <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
+          <button onclick="window.dashboardFunctions.viewAllFolders()" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: var(--space-xs);">
+            <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+            Back to All
+          </button>
+          <i data-lucide="folder" style="width: 20px; height: 20px; color: var(--primary-emerald);"></i>
+          <h2 style="font-size: var(--text-xl); font-weight: var(--font-semibold); margin: 0;">${escapeHtml(currentFolder)}</h2>
+          <span style="color: var(--text-tertiary); font-size: var(--text-sm);">${folderQRs.length} ${folderQRs.length === 1 ? 'code' : 'codes'}</span>
+        </div>
+        <div class="dashboard-grid">
+          ${folderQRs.map(qr => createQRCard(qr)).join('')}
+        </div>
+      </div>
+    `;
+
+    qrGrid.innerHTML = html;
+    lucide.createIcons();
+    generateQRCodesOnCanvas();
+    attachCardEventListeners();
+    return;
+  }
+
   // Group QR codes by folder
   const folderGroups = {};
   const unassigned = [];
@@ -159,33 +188,35 @@ function renderQRCodes() {
 
   let html = '';
 
-  // Render folders first
-  Object.keys(folderGroups).sort().forEach(folderName => {
-    const qrCodes = folderGroups[folderName];
-    html += `
-      <div style="grid-column: 1 / -1; margin-bottom: var(--space-md);">
-        <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md); padding: var(--space-md); background: var(--bg-secondary); border-radius: var(--radius-md);">
-          <i data-lucide="folder" style="width: 20px; height: 20px; color: var(--primary-emerald);"></i>
-          <h3 style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin: 0;">${escapeHtml(folderName)}</h3>
-          <span style="color: var(--text-tertiary); font-size: var(--text-sm); margin-left: auto;">${qrCodes.length} ${qrCodes.length === 1 ? 'code' : 'codes'}</span>
+  // Render folders first as clickable cards (like Google Drive)
+  const folderNames = Object.keys(folderGroups).sort();
+  if (folderNames.length > 0) {
+    html += `<div class="dashboard-grid" style="margin-bottom: var(--space-xl);">`;
+    folderNames.forEach(folderName => {
+      const qrCodes = folderGroups[folderName];
+      html += `
+        <div class="folder-card" onclick="window.dashboardFunctions.openFolder('${escapeHtml(folderName).replace(/'/g, "\\'")}')">
+          <div style="display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-md);">
+            <i data-lucide="folder" style="width: 48px; height: 48px; color: var(--primary-emerald);"></i>
+          </div>
+          <h3 style="font-size: var(--text-md); font-weight: var(--font-semibold); margin: 0 0 var(--space-xs) 0; text-align: center;">${escapeHtml(folderName)}</h3>
+          <p style="color: var(--text-tertiary); font-size: var(--text-sm); text-align: center; margin: 0;">${qrCodes.length} ${qrCodes.length === 1 ? 'code' : 'codes'}</p>
         </div>
-        <div class="dashboard-grid">
-          ${qrCodes.map(qr => createQRCard(qr)).join('')}
-        </div>
-      </div>
-    `;
-  });
+      `;
+    });
+    html += `</div>`;
+  }
 
   // Render unassigned QR codes
   if (unassigned.length > 0) {
-    if (Object.keys(folderGroups).length > 0) {
+    if (folderNames.length > 0) {
       html += `
-        <div style="grid-column: 1 / -1; margin-bottom: var(--space-md);">
-          <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md); padding: var(--space-md); background: var(--bg-secondary); border-radius: var(--radius-md);">
+        <div style="margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--border-color);">
+          <h3 style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin-bottom: var(--space-lg); display: flex; align-items: center; gap: var(--space-sm);">
             <i data-lucide="file" style="width: 20px; height: 20px; color: var(--text-secondary);"></i>
-            <h3 style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin: 0;">Unassigned</h3>
-            <span style="color: var(--text-tertiary); font-size: var(--text-sm); margin-left: auto;">${unassigned.length} ${unassigned.length === 1 ? 'code' : 'codes'}</span>
-          </div>
+            Unassigned QR Codes
+            <span style="color: var(--text-tertiary); font-size: var(--text-sm); font-weight: var(--font-normal);">${unassigned.length}</span>
+          </h3>
           <div class="dashboard-grid">
             ${unassigned.map(qr => createQRCard(qr)).join('')}
           </div>
@@ -208,6 +239,18 @@ function renderQRCodes() {
   // Attach event listeners
   attachCardEventListeners();
 }
+
+// Expose functions for folder navigation
+window.dashboardFunctions = {
+  openFolder: (folderName) => {
+    currentFolder = folderName;
+    renderQRCodes();
+  },
+  viewAllFolders: () => {
+    currentFolder = null;
+    renderQRCodes();
+  }
+};
 
 // Generate QR codes on canvas elements
 function generateQRCodesOnCanvas(retryCount = 0) {

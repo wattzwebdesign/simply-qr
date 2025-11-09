@@ -669,6 +669,26 @@ select.input-field {
   }
 }
 
+/* Folder Card (Google Drive style) */
+.folder-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.folder-card:hover {
+  border-color: var(--primary-emerald);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
 /* Favorite Star */
 .favorite-star {
   cursor: pointer;
