@@ -425,111 +425,57 @@ select.input-field {
   justify-content: space-between;
 }
 
-/* Mobile Navigation Menu Toggle */
-.mobile-nav-toggle {
-  display: none;
-  background: transparent;
-  border: none;
-  padding: var(--space-sm);
-  cursor: pointer;
-  color: var(--text-primary);
-  align-items: center;
-  justify-content: center;
-}
-
-.mobile-nav-toggle:hover {
-  color: var(--primary-emerald);
-}
-
-/* Mobile Navigation Overlay */
-.mobile-nav-overlay {
+/* Mobile Bottom Navigation Bar */
+.mobile-bottom-nav {
   display: none;
   position: fixed;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  opacity: 0;
-  transition: opacity var(--transition-normal);
-}
-
-.mobile-nav-overlay.open {
-  opacity: 1;
-}
-
-/* Mobile Navigation Menu */
-.mobile-nav-menu {
-  position: fixed;
-  top: 0;
-  left: -100%;
-  width: 280px;
-  height: 100vh;
   background: var(--bg-primary);
-  box-shadow: var(--shadow-xl);
-  z-index: 1000;
-  transition: left var(--transition-normal);
-  overflow-y: auto;
-  display: none;
-  flex-direction: column;
-  padding: var(--space-xl);
+  border-top: 1px solid var(--border-color);
+  padding: var(--space-sm) 0;
+  z-index: 100;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.mobile-nav-menu.open {
-  left: 0;
-}
-
-.mobile-nav-header {
+.mobile-bottom-nav-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-xl);
-  padding-bottom: var(--space-lg);
-  border-bottom: 1px solid var(--border-color);
+  justify-content: space-around;
+  max-width: 100%;
 }
 
-.mobile-nav-close {
-  background: transparent;
-  border: none;
-  padding: var(--space-sm);
-  cursor: pointer;
-  color: var(--text-primary);
+.mobile-bottom-nav-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.mobile-nav-close:hover {
-  color: var(--danger-color);
-}
-
-.mobile-nav-links {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.mobile-nav-link {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-md);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  color: var(--text-secondary);
   text-decoration: none;
   transition: all var(--transition-fast);
-  font-weight: var(--font-medium);
+  border-radius: var(--radius-md);
+  min-width: 70px;
 }
 
-.mobile-nav-link:hover {
+.mobile-bottom-nav-item:hover {
+  color: var(--primary-emerald);
   background: var(--bg-secondary);
+}
+
+.mobile-bottom-nav-item.active {
   color: var(--primary-emerald);
 }
 
-.mobile-nav-link.active {
-  background: rgba(16, 185, 129, 0.1);
+.mobile-bottom-nav-item.active i {
   color: var(--primary-emerald);
+}
+
+.mobile-bottom-nav-label {
+  font-size: 0.75rem;
+  font-weight: var(--font-medium);
 }
 
 .sidebar {
@@ -948,17 +894,14 @@ select.input-field {
 
 /* Responsive */
 @media (max-width: 768px) {
-  /* Mobile Navigation */
-  .mobile-nav-toggle {
-    display: flex;
-  }
-
-  .mobile-nav-overlay {
+  /* Show mobile bottom navigation */
+  .mobile-bottom-nav {
     display: block;
   }
 
-  .mobile-nav-menu {
-    display: flex;
+  /* Add bottom padding to body to account for bottom nav */
+  body {
+    padding-bottom: 65px;
   }
 
   /* Hide desktop navigation links on mobile */
@@ -966,19 +909,37 @@ select.input-field {
     display: none;
   }
 
-  /* Adjust header padding */
+  /* Adjust header padding and layout */
   .dashboard-header {
-    padding: var(--space-md) var(--space-lg);
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .dashboard-header > div:first-child {
+    flex: 1;
+  }
+
+  .dashboard-header > div:last-child {
+    gap: var(--space-sm) !important;
   }
 
   /* Make logo and title smaller */
   .dashboard-header h1 {
-    font-size: var(--text-lg) !important;
+    font-size: var(--text-base) !important;
   }
 
-  .dashboard-header > div:first-child > div {
+  .dashboard-header > div:first-child > div:first-child {
     width: 36px !important;
     height: 36px !important;
+  }
+
+  /* Hide Create button text on very small screens */
+  @media (max-width: 400px) {
+    .dashboard-header .btn-primary {
+      padding: var(--space-sm) !important;
+    }
+    .dashboard-header .btn-primary span {
+      display: none;
+    }
   }
 
   /* Dashboard sidebar and content */

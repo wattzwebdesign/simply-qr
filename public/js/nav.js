@@ -40,44 +40,6 @@ function initializeNavigation() {
     });
   }
 
-  // Mobile navigation functionality
-  const mobileNavToggle = document.getElementById('mobile-nav-toggle');
-  const mobileNavMenu = document.getElementById('mobile-nav-menu');
-  const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
-  const mobileNavClose = document.getElementById('mobile-nav-close');
-  const mobileNavLogout = document.getElementById('mobile-nav-logout');
-
-  if (mobileNavToggle && mobileNavMenu && mobileNavOverlay) {
-    // Open mobile menu
-    mobileNavToggle.addEventListener('click', () => {
-      mobileNavMenu.classList.add('open');
-      mobileNavOverlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    });
-
-    // Close mobile menu
-    const closeMobileMenu = () => {
-      mobileNavMenu.classList.remove('open');
-      mobileNavOverlay.classList.remove('open');
-      document.body.style.overflow = '';
-    };
-
-    if (mobileNavClose) {
-      mobileNavClose.addEventListener('click', closeMobileMenu);
-    }
-
-    mobileNavOverlay.addEventListener('click', closeMobileMenu);
-
-    // Mobile logout
-    if (mobileNavLogout) {
-      mobileNavLogout.addEventListener('click', () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-      });
-    }
-  }
-
   // Highlight current page in navigation
   highlightCurrentPage();
 }
@@ -108,9 +70,9 @@ function highlightCurrentPage() {
     }
   });
 
-  // Highlight mobile nav links
-  const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-  mobileNavLinks.forEach(link => {
+  // Highlight mobile bottom nav items
+  const mobileBottomNavItems = document.querySelectorAll('.mobile-bottom-nav-item');
+  mobileBottomNavItems.forEach(link => {
     const href = link.getAttribute('href');
 
     // Remove existing active class
