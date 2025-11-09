@@ -115,26 +115,28 @@
         <div class="card" style="margin-bottom: var(--space-xl);">
           <h3 style="margin-bottom: var(--space-lg);">Organization</h3>
 
-          <div class="form-group">
-            <label class="form-label" for="qr-tags">Tags</label>
-            <input
-              type="text"
-              id="qr-tags"
-              class="input-field"
-              placeholder="Separate tags with commas: work, marketing, personal"
-            >
-            <p class="form-helper">Add tags to help organize and find your QR codes</p>
-          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="qr-tags">Tags</label>
+              <input
+                type="text"
+                id="qr-tags"
+                class="input-field"
+                placeholder="work, marketing, personal"
+              >
+            </div>
 
-          <div class="form-group">
-            <label class="form-label" for="qr-folder">Folder</label>
-            <input
-              type="text"
-              id="qr-folder"
-              class="input-field"
-              placeholder="e.g., Client Work, Personal Projects"
-            >
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="qr-folder">Folder</label>
+              <input
+                type="text"
+                id="qr-folder"
+                class="input-field"
+                placeholder="e.g., Client Work"
+              >
+            </div>
           </div>
+          <p class="form-helper" style="margin-top: var(--space-sm);">Add tags and folders to organize your QR codes</p>
 
           <div class="form-group">
             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
@@ -260,20 +262,20 @@
       <div style="margin-top: var(--space-lg);">
         <label class="form-label" style="margin-bottom: var(--space-sm);">Download As</label>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-sm);">
-          <button type="button" class="btn btn-secondary btn-sm" id="download-png">
-            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+          <button type="button" class="btn btn-secondary" id="download-png" style="padding: var(--space-md) var(--space-lg);">
+            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
             PNG
           </button>
-          <button type="button" class="btn btn-secondary btn-sm" id="download-jpg">
-            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+          <button type="button" class="btn btn-secondary" id="download-jpg" style="padding: var(--space-md) var(--space-lg);">
+            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
             JPG
           </button>
-          <button type="button" class="btn btn-secondary btn-sm" id="download-svg">
-            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+          <button type="button" class="btn btn-secondary" id="download-svg" style="padding: var(--space-md) var(--space-lg);">
+            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
             SVG
           </button>
-          <button type="button" class="btn btn-secondary btn-sm" id="download-pdf">
-            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+          <button type="button" class="btn btn-secondary" id="download-pdf" style="padding: var(--space-md) var(--space-lg);">
+            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
             PDF
           </button>
         </div>
