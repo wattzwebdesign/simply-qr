@@ -1,0 +1,336 @@
+// Dashboard functionality
+
+// Check authentication
+const token = localStorage.getItem('token');
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+if (!token) {
+  window.location.href = '/';
+}
+
+// Display user email
+document.getElementById('user-email').textContent = user.email || '';
+
+// Elements
+const logoutBtn = document.getElementById('logout-btn');
+const searchInput = document.getElementById('search-input');
+const typeFilter = document.getElementById('type-filter');
+const favoritesFilter = document.getElementById('favorites-filter');
+const sortFilter = document.getElementById('sort-filter');
+const qrGrid = document.getElementById('qr-grid');
+const loadingState = document.getElementById('loading-state');
+const emptyState = document.getElementById('empty-state');
+const alertContainer = document.getElementById('alert-container');
+const qrCountDisplay = document.getElementById('qr-count-display');
+
+let allQRCodes = [];
+let filteredQRCodes = [];
+
+// Logout handler
+logoutBtn.addEventListener('click', () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/';
+});
+
+// Show alert
+function showAlert(message, type = 'success') {
+  const alert = document.createElement('div');
+  alert.className = `alert alert-${type}`;
+  alert.textContent = message;
+  alertContainer.innerHTML = '';
+  alertContainer.appendChild(alert);
+
+  setTimeout(() => {
+    alert.remove();
+  }, 5000);
+}
+
+// Fetch QR codes
+async function fetchQRCodes() {
+  try {
+    const response = await fetch('/api/qrcodes', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.status === 401) {
+      // Token expired
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/';
+      return;
+    }
+
+    const data = await response.json();
+
+    if (data.success) {
+      allQRCodes = data.qrcodes;
+      applyFilters();
+    } else {
+      showAlert('Failed to load QR codes', 'error');
+    }
+  } catch (error) {
+    console.error('Fetch error:', error);
+    showAlert('Network error. Please refresh.', 'error');
+  }
+
+  loadingState.classList.add('hidden');
+}
+
+// Apply filters
+function applyFilters() {
+  const searchTerm = searchInput.value.toLowerCase();
+  const typeValue = typeFilter.value;
+  const favoritesOnly = favoritesFilter.checked;
+  const [sortField, sortOrder] = sortFilter.value.split(':');
+
+  // Filter
+  filteredQRCodes = allQRCodes.filter(qr => {
+    // Search filter
+    const matchesSearch = !searchTerm ||
+      qr.name.toLowerCase().includes(searchTerm) ||
+      qr.content.toLowerCase().includes(searchTerm) ||
+      (qr.notes && qr.notes.toLowerCase().includes(searchTerm));
+
+    // Type filter
+    const matchesType = !typeValue || qr.type === typeValue;
+
+    // Favorites filter
+    const matchesFavorites = !favoritesOnly || qr.is_favorite === 1;
+
+    return matchesSearch && matchesType && matchesFavorites;
+  });
+
+  // Sort
+  filteredQRCodes.sort((a, b) => {
+    let aVal = a[sortField];
+    let bVal = b[sortField];
+
+    // Handle null/undefined
+    if (aVal === null || aVal === undefined) aVal = '';
+    if (bVal === null || bVal === undefined) bVal = '';
+
+    // String comparison for text fields
+    if (typeof aVal === 'string') {
+      aVal = aVal.toLowerCase();
+      bVal = bVal.toLowerCase();
+    }
+
+    if (sortOrder === 'ASC') {
+      return aVal > bVal ? 1 : -1;
+    } else {
+      return aVal < bVal ? 1 : -1;
+    }
+  });
+
+  // Update count
+  qrCountDisplay.textContent = `${filteredQRCodes.length} QR code${filteredQRCodes.length !== 1 ? 's' : ''}`;
+
+  renderQRCodes();
+}
+
+// Render QR codes
+function renderQRCodes() {
+  if (filteredQRCodes.length === 0) {
+    qrGrid.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    return;
+  }
+
+  emptyState.classList.add('hidden');
+  qrGrid.classList.remove('hidden');
+
+  qrGrid.innerHTML = filteredQRCodes.map(qr => createQRCard(qr)).join('');
+
+  // Re-initialize Lucide icons
+  lucide.createIcons();
+
+  // Attach event listeners
+  attachCardEventListeners();
+}
+
+// Create QR card HTML
+function createQRCard(qr) {
+  const typeColors = {
+    url: 'badge-url',
+    text: 'badge-text',
+    vcard: 'badge-vcard',
+    wifi: 'badge-wifi',
+    email: 'badge-email',
+    sms: 'badge-sms',
+    phone: 'badge-phone'
+  };
+
+  const badgeClass = typeColors[qr.type] || 'badge-text';
+  const isFavorite = qr.is_favorite === 1;
+  const createdDate = new Date(qr.created_at).toLocaleDateString();
+
+  return `
+    <div class="qr-card" data-qr-id="${qr.id}">
+      <div class="qr-card-image">
+        <img src="${qr.file_path}" alt="${qr.name}">
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-sm);">
+        <h3 class="qr-card-title">${escapeHtml(qr.name)}</h3>
+        <i data-lucide="star"
+           class="favorite-star ${isFavorite ? 'active' : ''}"
+           data-qr-id="${qr.id}"
+           style="width: 20px; height: 20px; flex-shrink: 0; ${isFavorite ? 'fill: var(--accent-amber);' : ''}">
+        </i>
+      </div>
+
+      <div class="qr-card-meta">
+        <span class="badge ${badgeClass}">${qr.type.toUpperCase()}</span>
+        ${qr.scan_count > 0 ? `<span style="font-size: var(--text-xs); color: var(--text-tertiary);">${qr.scan_count} scans</span>` : ''}
+      </div>
+
+      ${qr.tags && qr.tags.length > 0 ? `
+        <div class="qr-card-tags">
+          ${qr.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
+        </div>
+      ` : ''}
+
+      <div class="qr-card-date">Created ${createdDate}</div>
+
+      <div class="qr-card-actions">
+        <button class="btn btn-secondary btn-sm download-btn" data-qr-id="${qr.id}">
+          <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+          Download
+        </button>
+        <a href="/edit/${qr.id}" class="btn btn-secondary btn-sm">
+          <i data-lucide="edit" style="width: 14px; height: 14px;"></i>
+          Edit
+        </a>
+        <button class="btn btn-danger btn-sm delete-btn" data-qr-id="${qr.id}">
+          <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+          Delete
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// Escape HTML
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Attach event listeners to cards
+function attachCardEventListeners() {
+  // Favorite buttons
+  document.querySelectorAll('.favorite-star').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const qrId = e.currentTarget.dataset.qrId;
+      const qr = allQRCodes.find(q => q.id == qrId);
+      const newFavoriteStatus = qr.is_favorite === 1 ? 0 : 1;
+
+      await toggleFavorite(qrId, newFavoriteStatus);
+    });
+  });
+
+  // Download buttons
+  document.querySelectorAll('.download-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const qrId = e.currentTarget.dataset.qrId;
+      await downloadQRCode(qrId);
+    });
+  });
+
+  // Delete buttons
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const qrId = e.currentTarget.dataset.qrId;
+      const qr = allQRCodes.find(q => q.id == qrId);
+
+      if (confirm(`Are you sure you want to delete "${qr.name}"?`)) {
+        await deleteQRCode(qrId);
+      }
+    });
+  });
+}
+
+// Toggle favorite
+async function toggleFavorite(qrId, isFavorite) {
+  try {
+    const response = await fetch(`/api/qrcodes/${qrId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ is_favorite: isFavorite })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Update local data
+      const qr = allQRCodes.find(q => q.id == qrId);
+      if (qr) {
+        qr.is_favorite = isFavorite;
+      }
+      applyFilters();
+    } else {
+      showAlert('Failed to update favorite', 'error');
+    }
+  } catch (error) {
+    console.error('Toggle favorite error:', error);
+    showAlert('Network error', 'error');
+  }
+}
+
+// Download QR code
+async function downloadQRCode(qrId) {
+  const qr = allQRCodes.find(q => q.id == qrId);
+  if (!qr) return;
+
+  // Create a temporary link and trigger download
+  const link = document.createElement('a');
+  link.href = qr.file_path;
+  link.download = `${qr.name.replace(/[^a-z0-9]/gi, '_')}.png`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  showAlert('QR code downloaded!', 'success');
+}
+
+// Delete QR code
+async function deleteQRCode(qrId) {
+  try {
+    const response = await fetch(`/api/qrcodes/${qrId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Remove from local data
+      allQRCodes = allQRCodes.filter(q => q.id != qrId);
+      applyFilters();
+      showAlert('QR code deleted successfully', 'success');
+    } else {
+      showAlert('Failed to delete QR code', 'error');
+    }
+  } catch (error) {
+    console.error('Delete error:', error);
+    showAlert('Network error', 'error');
+  }
+}
+
+// Filter event listeners
+searchInput.addEventListener('input', applyFilters);
+typeFilter.addEventListener('change', applyFilters);
+favoritesFilter.addEventListener('change', applyFilters);
+sortFilter.addEventListener('change', applyFilters);
+
+// Initial load
+fetchQRCodes();

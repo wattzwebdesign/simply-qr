@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - QR Code Manager</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Dashboard Header -->
+  <div class="dashboard-header">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-emerald), var(--primary-emerald-dark)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; font-weight: var(--font-bold);">QR</div>
+      <h1 style="font-size: var(--text-2xl);">QR Code Manager</h1>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <span id="user-email" style="color: var(--text-secondary); font-size: var(--text-sm);"></span>
+      <button class="btn btn-secondary btn-sm" id="logout-btn">
+        <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
+        Logout
+      </button>
+    </div>
+  </div>
+
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div style="margin-bottom: var(--space-xl);">
+        <a href="/create" class="btn btn-primary" style="width: 100%;">
+          <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+          Create QR Code
+        </a>
+      </div>
+
+      <!-- Search -->
+      <div class="form-group">
+        <label class="form-label">
+          <i data-lucide="search" style="width: 14px; height: 14px; display: inline;"></i>
+          Search
+        </label>
+        <input
+          type="text"
+          id="search-input"
+          class="input-field"
+          placeholder="Search QR codes..."
+        >
+      </div>
+
+      <!-- Filter by Type -->
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select id="type-filter" class="input-field">
+          <option value="">All Types</option>
+          <option value="url">URL</option>
+          <option value="text">Text</option>
+          <option value="vcard">vCard</option>
+          <option value="wifi">WiFi</option>
+          <option value="email">Email</option>
+          <option value="sms">SMS</option>
+          <option value="phone">Phone</option>
+        </select>
+      </div>
+
+      <!-- Favorites Toggle -->
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="favorites-filter">
+          <span class="form-label" style="margin: 0;">
+            <i data-lucide="star" style="width: 14px; height: 14px; display: inline;"></i>
+            Favorites Only
+          </span>
+        </label>
+      </div>
+
+      <!-- Sort Options -->
+      <div class="form-group">
+        <label class="form-label">Sort By</label>
+        <select id="sort-filter" class="input-field">
+          <option value="created_at:DESC">Newest First</option>
+          <option value="created_at:ASC">Oldest First</option>
+          <option value="name:ASC">Name (A-Z)</option>
+          <option value="name:DESC">Name (Z-A)</option>
+          <option value="scan_count:DESC">Most Scanned</option>
+        </select>
+      </div>
+
+      <div style="margin-top: var(--space-xl); padding-top: var(--space-xl); border-top: 1px solid var(--border-color);">
+        <div style="font-size: var(--text-sm); color: var(--text-tertiary);">
+          <p id="qr-count-display">0 QR codes</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Alert Container -->
+      <div id="alert-container"></div>
+
+      <!-- Loading State -->
+      <div id="loading-state" class="empty-state">
+        <div class="spinner" style="margin: 0 auto;"></div>
+        <p style="margin-top: var(--space-md);">Loading QR codes...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-state-icon">
+          <i data-lucide="qr-code" style="width: 64px; height: 64px;"></i>
+        </div>
+        <h3>No QR codes yet</h3>
+        <p style="margin: var(--space-md) 0;">Create your first QR code to get started!</p>
+        <a href="/create" class="btn btn-primary">
+          <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+          Create QR Code
+        </a>
+      </div>
+
+      <!-- QR Codes Grid -->
+      <div id="qr-grid" class="dashboard-grid hidden"></div>
+    </main>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="/js/dashboard.js"></script>
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>
