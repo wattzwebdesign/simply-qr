@@ -384,57 +384,17 @@ function applyFrame(qrCanvas, frameType, frameText) {
   const centerY = (totalHeight - textHeight) / 2;
 
   // Draw frame based on type
+  ctx.fillStyle = '#000000';
   switch (frameType) {
     case 'square':
       // Black square frame
-      ctx.fillStyle = '#000000';
       ctx.fillRect(padding - 20, padding - 20, qrSize + 40, qrSize + 40 + textHeight);
       break;
 
     case 'rounded':
       // Rounded black frame
-      ctx.fillStyle = '#000000';
       ctx.beginPath();
       ctx.roundRect(padding - 20, padding - 20, qrSize + 40, qrSize + 40 + textHeight, 20);
-      ctx.fill();
-      break;
-
-    case 'circle':
-      // Circle frame
-      const radius = (qrSize + 60) / 2;
-      ctx.fillStyle = '#000000';
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-
-    case 'badge':
-      // Badge with arrow
-      ctx.fillStyle = '#000000';
-      ctx.beginPath();
-      ctx.roundRect(padding - 20, padding - 20, qrSize + 40, qrSize + 40 + textHeight, 12);
-      ctx.fill();
-      // Draw arrow
-      ctx.beginPath();
-      ctx.moveTo(centerX, totalHeight - textHeight + qrSize + 40);
-      ctx.lineTo(centerX - 20, totalHeight - textHeight + qrSize + 20);
-      ctx.lineTo(centerX + 20, totalHeight - textHeight + qrSize + 20);
-      ctx.closePath();
-      ctx.fill();
-      break;
-
-    case 'banner':
-      // Hexagon banner
-      ctx.fillStyle = '#000000';
-      const hexPadding = 30;
-      ctx.beginPath();
-      ctx.moveTo(centerX - qrSize/2 - hexPadding, centerY);
-      ctx.lineTo(centerX - qrSize/2 + hexPadding, padding - 20);
-      ctx.lineTo(centerX + qrSize/2 - hexPadding, padding - 20);
-      ctx.lineTo(centerX + qrSize/2 + hexPadding, centerY);
-      ctx.lineTo(centerX + qrSize/2 - hexPadding, padding + qrSize + 20 + textHeight);
-      ctx.lineTo(centerX - qrSize/2 + hexPadding, padding + qrSize + 20 + textHeight);
-      ctx.closePath();
       ctx.fill();
       break;
   }
@@ -619,38 +579,6 @@ function applyFrameHighRes(qrCanvas, frameType, frameText) {
       ctx.roundRect(padding - 40, padding - 40, qrSize + 80, qrSize + 80 + textHeight, 40);
       ctx.fill();
       break;
-
-    case 'circle':
-      const radius = (qrSize + 120) / 2;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-
-    case 'badge':
-      ctx.beginPath();
-      ctx.roundRect(padding - 40, padding - 40, qrSize + 80, qrSize + 80 + textHeight, 24);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(centerX, totalHeight - textHeight + qrSize + 80);
-      ctx.lineTo(centerX - 40, totalHeight - textHeight + qrSize + 40);
-      ctx.lineTo(centerX + 40, totalHeight - textHeight + qrSize + 40);
-      ctx.closePath();
-      ctx.fill();
-      break;
-
-    case 'banner':
-      const hexPadding = 60;
-      ctx.beginPath();
-      ctx.moveTo(centerX - qrSize/2 - hexPadding, centerY);
-      ctx.lineTo(centerX - qrSize/2 + hexPadding, padding - 40);
-      ctx.lineTo(centerX + qrSize/2 - hexPadding, padding - 40);
-      ctx.lineTo(centerX + qrSize/2 + hexPadding, centerY);
-      ctx.lineTo(centerX + qrSize/2 - hexPadding, padding + qrSize + 40 + textHeight);
-      ctx.lineTo(centerX - qrSize/2 + hexPadding, padding + qrSize + 40 + textHeight);
-      ctx.closePath();
-      ctx.fill();
-      break;
   }
 
   // Draw QR code
@@ -676,7 +604,7 @@ downloadPngBtn.addEventListener('click', async () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${qrNameInput.value.replace(/[^a-z0-9]/gi, '_')}.png`;
+      link.download = `${currentShortCode}.png`;
       link.click();
       URL.revokeObjectURL(url);
     });
@@ -694,7 +622,7 @@ downloadJpgBtn.addEventListener('click', async () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${qrNameInput.value.replace(/[^a-z0-9]/gi, '_')}.jpg`;
+      link.download = `${currentShortCode}.jpg`;
       link.click();
       URL.revokeObjectURL(url);
     }, 'image/jpeg', 0.95);
@@ -719,7 +647,7 @@ downloadSvgBtn.addEventListener('click', async () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${qrNameInput.value.replace(/[^a-z0-9]/gi, '_')}.svg`;
+    link.download = `${currentShortCode}.svg`;
     link.click();
     URL.revokeObjectURL(url);
   } catch (error) {
@@ -747,7 +675,7 @@ downloadPdfBtn.addEventListener('click', async () => {
     });
 
     pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-    pdf.save(`${qrNameInput.value.replace(/[^a-z0-9]/gi, '_')}.pdf`);
+    pdf.save(`${currentShortCode}.pdf`);
   } catch (error) {
     console.error('PDF download error:', error);
     alert('Failed to download PDF');
