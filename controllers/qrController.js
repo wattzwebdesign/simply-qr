@@ -487,6 +487,31 @@ async function getQRCodeByShortCode(req, res) {
   }
 }
 
+// Get all unique folders for the user
+async function getFolders(req, res) {
+  try {
+    const folders = await db.allAsync(
+      `SELECT DISTINCT folder
+       FROM qr_codes
+       WHERE user_id = ? AND folder IS NOT NULL AND folder != ''
+       ORDER BY folder ASC`,
+      [req.user.id]
+    );
+
+    res.json({
+      success: true,
+      folders: folders.map(f => f.folder)
+    });
+  } catch (error) {
+    console.error('Get folders error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve folders',
+      code: 'GET_FOLDERS_ERROR'
+    });
+  }
+}
+
 module.exports = {
   getAllQRCodes,
   getQRCode,
@@ -494,5 +519,6 @@ module.exports = {
   updateQRCode,
   deleteQRCode,
   previewQRCode,
-  getQRCodeByShortCode
+  getQRCodeByShortCode,
+  getFolders
 };

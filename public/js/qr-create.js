@@ -916,8 +916,36 @@ async function loadQRCode() {
   }
 }
 
+// Load folders for autocomplete
+async function loadFolders() {
+  try {
+    const response = await fetch('/api/qrcodes/folders/list', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.folders) {
+        const datalist = document.getElementById('folder-suggestions');
+        datalist.innerHTML = '';
+
+        data.folders.forEach(folder => {
+          const option = document.createElement('option');
+          option.value = folder;
+          datalist.appendChild(option);
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Load folders error:', error);
+  }
+}
+
 // Initialize
 updateContentFields();
+loadFolders();
 loadQRCode();
 
 // Trigger initial preview immediately (for new QR codes)
