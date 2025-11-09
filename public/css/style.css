@@ -1056,6 +1056,35 @@ select.input-field {
     grid-template-columns: 1fr !important;
   }
 
+  /* QR Analytics - Header card with QR preview */
+  #analytics-content .card > div[style*="display: flex"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: var(--space-md) !important;
+  }
+
+  #qr-preview {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  #qr-name {
+    font-size: var(--text-lg) !important;
+    word-break: break-word;
+  }
+
+  #qr-short-url {
+    font-size: var(--text-xs) !important;
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+
+  /* Edit button full width on mobile */
+  #edit-qr-link {
+    width: 100%;
+    justify-content: center;
+  }
+
   .qr-frame-card {
     padding: var(--space-sm);
   }
