@@ -65,12 +65,16 @@ function showAlert(message, type = 'success') {
 
 // Fetch QR codes
 async function fetchQRCodes() {
+  console.log('fetchQRCodes called');
   try {
+    console.log('Fetching QR codes with token:', token ? 'exists' : 'missing');
     const response = await fetch('/api/qrcodes', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
+
+    console.log('Response status:', response.status);
 
     if (response.status === 401) {
       // Token expired
@@ -81,9 +85,11 @@ async function fetchQRCodes() {
     }
 
     const data = await response.json();
+    console.log('Response data:', data);
 
     if (data.success) {
       allQRCodes = data.qrcodes;
+      console.log('Loaded QR codes:', allQRCodes.length);
 
       // Check if there's a folder parameter in the URL
       const urlParams = new URLSearchParams(window.location.search);
@@ -94,7 +100,10 @@ async function fetchQRCodes() {
 
       applyFilters();
     } else {
+      console.error('API returned success: false');
       showAlert('Failed to load QR codes', 'error');
+      loadingState.classList.add('hidden');
+      emptyState.classList.remove('hidden');
     }
   } catch (error) {
     console.error('Fetch error:', error);
