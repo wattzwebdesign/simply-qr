@@ -61,16 +61,40 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="qr-type">Type *</label>
-            <select id="qr-type" class="input-field" required>
-              <option value="url">URL / Website</option>
-              <option value="text">Plain Text</option>
-              <option value="vcard">vCard (Contact)</option>
-              <option value="wifi">WiFi Network</option>
-              <option value="email">Email</option>
-              <option value="sms">SMS Message</option>
-              <option value="phone">Phone Number</option>
-            </select>
+            <label class="form-label">Type *</label>
+            <p class="form-helper" style="margin-top: 0;">Where should your QR code scan to?</p>
+            <div class="qr-type-grid">
+              <div class="qr-type-card active" data-type="url">
+                <i data-lucide="globe" class="qr-type-icon"></i>
+                <span class="qr-type-label">URL</span>
+              </div>
+              <div class="qr-type-card" data-type="text">
+                <i data-lucide="file-text" class="qr-type-icon"></i>
+                <span class="qr-type-label">Text</span>
+              </div>
+              <div class="qr-type-card" data-type="vcard">
+                <i data-lucide="user" class="qr-type-icon"></i>
+                <span class="qr-type-label">vCard</span>
+              </div>
+              <div class="qr-type-card" data-type="wifi">
+                <i data-lucide="wifi" class="qr-type-icon"></i>
+                <span class="qr-type-label">WiFi</span>
+              </div>
+              <div class="qr-type-card" data-type="email">
+                <i data-lucide="mail" class="qr-type-icon"></i>
+                <span class="qr-type-label">Email</span>
+              </div>
+              <div class="qr-type-card" data-type="sms">
+                <i data-lucide="message-square" class="qr-type-icon"></i>
+                <span class="qr-type-label">SMS</span>
+              </div>
+              <div class="qr-type-card" data-type="phone">
+                <i data-lucide="phone" class="qr-type-icon"></i>
+                <span class="qr-type-label">Phone</span>
+              </div>
+            </div>
+            <!-- Hidden input to store selected type -->
+            <input type="hidden" id="qr-type" value="url" required>
           </div>
 
           <!-- Dynamic Content Fields -->

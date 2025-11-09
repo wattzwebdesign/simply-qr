@@ -22,6 +22,9 @@ const loadingState = document.getElementById('loading-state');
 const emptyState = document.getElementById('empty-state');
 const alertContainer = document.getElementById('alert-container');
 const qrCountDisplay = document.getElementById('qr-count-display');
+const sidebar = document.getElementById('sidebar');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
+const mobileFilterToggle = document.getElementById('mobile-filter-toggle');
 
 let allQRCodes = [];
 let filteredQRCodes = [];
@@ -33,6 +36,26 @@ logoutBtn.addEventListener('click', () => {
   localStorage.removeItem('user');
   window.location.href = '/login';
 });
+
+// Mobile filter toggle
+mobileFilterToggle.addEventListener('click', () => {
+  sidebar.classList.add('open');
+  sidebarOverlay.classList.add('open');
+});
+
+// Close sidebar when clicking overlay
+sidebarOverlay.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  sidebarOverlay.classList.remove('open');
+});
+
+// Close sidebar when applying filters on mobile
+function closeMobileSidebar() {
+  if (window.innerWidth <= 768) {
+    sidebar.classList.remove('open');
+    sidebarOverlay.classList.remove('open');
+  }
+}
 
 // Show alert
 function showAlert(message, type = 'success') {
@@ -502,10 +525,22 @@ async function deleteQRCode(qrId) {
 }
 
 // Filter event listeners
-searchInput.addEventListener('input', applyFilters);
-typeFilter.addEventListener('change', applyFilters);
-favoritesFilter.addEventListener('change', applyFilters);
-sortFilter.addEventListener('change', applyFilters);
+searchInput.addEventListener('input', () => {
+  applyFilters();
+  closeMobileSidebar();
+});
+typeFilter.addEventListener('change', () => {
+  applyFilters();
+  closeMobileSidebar();
+});
+favoritesFilter.addEventListener('change', () => {
+  applyFilters();
+  closeMobileSidebar();
+});
+sortFilter.addEventListener('change', () => {
+  applyFilters();
+  closeMobileSidebar();
+});
 
 // Initial load
 fetchQRCodes();

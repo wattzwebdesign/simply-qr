@@ -211,7 +211,28 @@ qrColorLightText.addEventListener('input', (e) => {
 // Update size value display
 // Size is now fixed at 300px
 
-// Type change handler
+// Visual Type Picker Handler
+document.querySelectorAll('.qr-type-card').forEach(card => {
+  card.addEventListener('click', function() {
+    // Remove active class from all cards
+    document.querySelectorAll('.qr-type-card').forEach(c => c.classList.remove('active'));
+
+    // Add active class to clicked card
+    this.classList.add('active');
+
+    // Update hidden input value
+    const selectedType = this.dataset.type;
+    qrTypeSelect.value = selectedType;
+
+    // Update content fields for new type
+    updateContentFields();
+
+    // Re-initialize Lucide icons
+    lucide.createIcons();
+  });
+});
+
+// Type change handler (for programmatic changes)
 qrTypeSelect.addEventListener('change', updateContentFields);
 
 // Collect form data
@@ -474,6 +495,15 @@ async function loadQRCode() {
       // Populate basic fields
       qrNameInput.value = qr.name;
       qrTypeSelect.value = qr.type;
+
+      // Update visual type picker
+      document.querySelectorAll('.qr-type-card').forEach(card => {
+        card.classList.remove('active');
+        if (card.dataset.type === qr.type) {
+          card.classList.add('active');
+        }
+      });
+
       updateContentFields();
 
       // Wait for content fields to be created

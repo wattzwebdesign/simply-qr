@@ -592,6 +592,33 @@ select.input-field {
 .hidden { display: none; }
 .visible { display: block; }
 
+/* Mobile Filter Toggle Button */
+.mobile-filter-toggle {
+  display: none;
+  position: fixed;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
+  z-index: 999;
+  background: var(--primary-emerald);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  width: 56px;
+  height: 56px;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mobile-filter-toggle:hover {
+  background: var(--primary-emerald-dark);
+  transform: scale(1.05);
+}
+
+.mobile-filter-toggle:active {
+  transform: scale(0.95);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .dashboard {
@@ -599,15 +626,67 @@ select.input-field {
   }
 
   .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100vh;
+    background: var(--bg-primary);
+    border-right: 1px solid var(--border-color);
+    padding: var(--space-lg);
+    transition: left var(--transition-base);
+    z-index: 1000;
+    overflow-y: auto;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .mobile-filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: auto;
-    position: relative;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .sidebar-overlay.open {
+    display: block;
   }
 
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Folder grid - 2 columns on mobile */
+  div[style*="grid-template-columns: repeat(4, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* QR Type picker - 2 columns on mobile */
+  .qr-type-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .qr-type-card {
+    padding: var(--space-md);
+    min-height: 80px;
+  }
+
+  .qr-type-icon {
+    width: 24px;
+    height: 24px;
   }
 
   .auth-box {
@@ -667,6 +746,60 @@ select.input-field {
   .qr-card-actions a {
     width: 100%;
   }
+}
+
+/* QR Type Visual Picker */
+.qr-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.qr-type-card {
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  min-height: 100px;
+}
+
+.qr-type-card:hover {
+  background: var(--bg-secondary);
+  border-color: var(--primary-emerald);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.qr-type-card.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+  border-color: var(--primary-emerald);
+  border-width: 3px;
+}
+
+.qr-type-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.qr-type-card.active .qr-type-icon {
+  color: var(--primary-emerald);
+}
+
+.qr-type-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  text-align: center;
 }
 
 /* Folder Card (Google Drive style - compact) */
