@@ -106,6 +106,14 @@ async function fetchQRCodes() {
 
     if (data.success) {
       allQRCodes = data.qrcodes;
+
+      // Check if there's a folder parameter in the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const folderParam = urlParams.get('folder');
+      if (folderParam) {
+        currentFolder = folderParam;
+      }
+
       applyFilters();
     } else {
       showAlert('Failed to load QR codes', 'error');
@@ -280,10 +288,18 @@ function renderQRCodes() {
 window.dashboardFunctions = {
   openFolder: (folderName) => {
     currentFolder = folderName;
+    // Update URL with folder parameter
+    const url = new URL(window.location);
+    url.searchParams.set('folder', folderName);
+    window.history.pushState({}, '', url);
     renderQRCodes();
   },
   viewAllFolders: () => {
     currentFolder = null;
+    // Remove folder parameter from URL
+    const url = new URL(window.location);
+    url.searchParams.delete('folder');
+    window.history.pushState({}, '', url);
     renderQRCodes();
   }
 };
