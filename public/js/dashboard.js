@@ -201,9 +201,16 @@ function renderQRCodes() {
     `;
 
     qrGrid.innerHTML = html;
-    lucide.createIcons();
+    try {
+      if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        lucide.createIcons();
+      }
+    } catch (error) {
+      console.error('Lucide icons error:', error);
+    }
     generateQRCodesOnCanvas();
     attachCardEventListeners();
+    loadingState.classList.add('hidden');
     return;
   }
 
@@ -262,13 +269,22 @@ function renderQRCodes() {
   qrGrid.innerHTML = html;
 
   // Re-initialize Lucide icons
-  lucide.createIcons();
+  try {
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      lucide.createIcons();
+    }
+  } catch (error) {
+    console.error('Lucide icons error:', error);
+  }
 
   // Generate QR codes on canvases
   generateQRCodesOnCanvas();
 
   // Attach event listeners
   attachCardEventListeners();
+
+  // Hide loading state
+  loadingState.classList.add('hidden');
 }
 
 // Expose functions for folder navigation
