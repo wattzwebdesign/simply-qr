@@ -383,6 +383,10 @@ function createQRCard(qr) {
       <div class="qr-card-date">Created ${createdDate}</div>
 
       <div class="qr-card-actions">
+        <a href="/qr-analytics/${qr.id}" class="btn btn-secondary btn-sm">
+          <i data-lucide="bar-chart-2" style="width: 14px; height: 14px;"></i>
+          Analytics
+        </a>
         <button class="btn btn-secondary btn-sm download-btn" data-qr-id="${qr.id}">
           <i data-lucide="download" style="width: 14px; height: 14px;"></i>
           Download

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Analytics - SimplyQR</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Dashboard Header -->
+  <div class="dashboard-header">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <a href="/dashboard" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 1rem;">
+        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary-emerald), var(--primary-emerald-dark)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; padding: 10px;">
+          <i data-lucide="qr-code" style="width: 28px; height: 28px;"></i>
+        </div>
+        <h1 style="font-size: var(--text-2xl);">SimplyQR</h1>
+      </a>
+      <span style="color: var(--text-tertiary); font-size: var(--text-lg); margin-left: var(--space-sm);">|</span>
+      <h2 style="font-size: var(--text-lg); color: var(--text-secondary); font-weight: var(--font-medium);" id="page-title">QR Analytics</h2>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <a href="/dashboard" class="btn btn-secondary btn-sm">
+        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+        Back to Dashboard
+      </a>
+
+      <button id="export-csv-btn" class="btn btn-secondary btn-sm">
+        <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+        Export CSV
+      </button>
+    </div>
+  </div>
+
+  <div style="max-width: 1600px; margin: 0 auto; padding: var(--space-2xl);">
+    <!-- Alert Container -->
+    <div id="alert-container"></div>
+
+    <!-- Loading State -->
+    <div id="loading-state" style="text-align: center; padding: var(--space-2xl);">
+      <div class="spinner" style="margin: 0 auto;"></div>
+      <p style="margin-top: var(--space-md); color: var(--text-secondary);">Loading analytics...</p>
+    </div>
+
+    <!-- Analytics Content -->
+    <div id="analytics-content" style="display: none;">
+      <!-- QR Code Info Card -->
+      <div class="card" style="margin-bottom: var(--space-2xl);">
+        <div style="display: flex; align-items: center; gap: var(--space-lg);">
+          <div id="qr-preview" style="width: 100px; height: 100px; background: var(--bg-secondary); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+            <canvas id="qr-canvas" width="100" height="100"></canvas>
+          </div>
+          <div style="flex: 1;">
+            <h2 id="qr-name" style="margin: 0 0 var(--space-sm) 0;">QR Code</h2>
+            <div style="display: flex; align-items: center; gap: var(--space-md);">
+              <span id="qr-type-badge" class="badge">TYPE</span>
+              <span id="qr-short-url" style="font-family: monospace; font-size: var(--text-sm); color: var(--text-secondary);"></span>
+            </div>
+          </div>
+          <div style="display: flex; gap: var(--space-md);">
+            <a id="edit-qr-link" class="btn btn-secondary">
+              <i data-lucide="edit" style="width: 18px; height: 18px;"></i>
+              Edit QR
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-2xl);">
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: var(--space-md);">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary-emerald), var(--primary-emerald-dark)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white;">
+              <i data-lucide="mouse-pointer-click" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); margin: 0;">Total Scans</p>
+              <h2 id="total-scans" style="font-size: var(--text-3xl); font-weight: var(--font-bold); margin: 0;">0</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: var(--space-md);">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white;">
+              <i data-lucide="users" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); margin: 0;">Unique Visitors</p>
+              <h2 id="unique-ips" style="font-size: var(--text-3xl); font-weight: var(--font-bold); margin: 0;">0</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; align-items: center; gap: var(--space-md);">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white;">
+              <i data-lucide="clock" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+              <p style="font-size: var(--text-sm); color: var(--text-secondary); margin: 0;">Last Scanned</p>
+              <h2 id="last-scanned" style="font-size: var(--text-lg); font-weight: var(--font-bold); margin: 0;">Never</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scan Timeline Chart -->
+      <div class="card" style="margin-bottom: var(--space-2xl);">
+        <h3 style="margin-bottom: var(--space-lg); display: flex; align-items: center; gap: var(--space-sm);">
+          <i data-lucide="trending-up" style="width: 20px; height: 20px;"></i>
+          Scan Timeline (Last 30 Days)
+        </h3>
+        <canvas id="timeline-chart" style="max-height: 300px;"></canvas>
+      </div>
+
+      <!-- Geographic Map & Device Stats -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl); margin-bottom: var(--space-2xl);">
+        <!-- Geographic Distribution -->
+        <div class="card">
+          <h3 style="margin-bottom: var(--space-lg); display: flex; align-items: center; gap: var(--space-sm);">
+            <i data-lucide="map" style="width: 20px; height: 20px;"></i>
+            Geographic Distribution
+          </h3>
+          <div id="country-breakdown"></div>
+        </div>
+
+        <!-- Device Breakdown -->
+        <div class="card">
+          <h3 style="margin-bottom: var(--space-lg); display: flex; align-items: center; gap: var(--space-sm);">
+            <i data-lucide="smartphone" style="width: 20px; height: 20px;"></i>
+            Device Breakdown
+          </h3>
+          <canvas id="device-chart" style="max-height: 250px;"></canvas>
+        </div>
+      </div>
+
+      <!-- Browser & OS Stats -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl); margin-bottom: var(--space-2xl);">
+        <!-- Browser Breakdown -->
+        <div class="card">
+          <h3 style="margin-bottom: var(--space-lg); display: flex; align-items: center; gap: var(--space-sm);">
+            <i data-lucide="chrome" style="width: 20px; height: 20px;"></i>
+            Browser Breakdown
+          </h3>
+          <canvas id="browser-chart" style="max-height: 250px;"></canvas>
+        </div>
+
+        <!-- OS Breakdown -->
+        <div class="card">
+          <h3 style="margin-bottom: var(--space-lg); display: flex; align-items: center; gap: var(--space-sm);">
+            <i data-lucide="monitor" style="width: 20px; height: 20px;"></i>
+            Operating Systems
+          </h3>
+          <canvas id="os-chart" style="max-height: 250px;"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Scans Table -->
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-lg); display: flex; align-items: center; gap: var(--space-sm);">
+          <i data-lucide="list" style="width: 20px; height: 20px;"></i>
+          Recent Scans
+        </h3>
+        <div id="recent-scans-table" style="overflow-x: auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QRCode.js Library -->
+  <script src="/js/qrcode-bundle.js"></script>
+
+  <!-- JavaScript -->
+  <script src="/js/qr-analytics.js"></script>
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>
