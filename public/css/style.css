@@ -1028,10 +1028,9 @@ select.input-field {
 /* QR Frame Visual Picker */
 .qr-frame-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-md);
   margin-top: var(--space-md);
-  max-width: 500px;
 }
 
 .qr-frame-card {
