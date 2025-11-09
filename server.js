@@ -9,6 +9,7 @@ require('./config/database');
 // Import routes
 const authRoutes = require('./routes/auth');
 const qrCodeRoutes = require('./routes/qrcodes');
+const redirectRoutes = require('./routes/redirect');
 
 // Create Express app
 const app = express();
@@ -24,6 +25,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/qrcodes', qrCodeRoutes);
+
+// Public redirect routes (for dynamic QR codes)
+app.use('/r', redirectRoutes);
 
 // Root route - serve login page
 app.get('/', (req, res) => {

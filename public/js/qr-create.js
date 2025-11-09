@@ -26,6 +26,9 @@ const qrNotesInput = document.getElementById('qr-notes');
 const qrTagsInput = document.getElementById('qr-tags');
 const qrFolderInput = document.getElementById('qr-folder');
 const qrFavoriteInput = document.getElementById('qr-favorite');
+const qrDynamicInput = document.getElementById('qr-dynamic');
+const shortUrlDisplay = document.getElementById('short-url-display');
+const shortUrlValue = document.getElementById('short-url-value');
 const qrColorDark = document.getElementById('qr-color-dark');
 const qrColorDarkText = document.getElementById('qr-color-dark-text');
 const qrColorLight = document.getElementById('qr-color-light');
@@ -282,7 +285,8 @@ function collectFormData() {
     color_light: qrColorLight.value,
     size: parseInt(qrSizeInput.value),
     error_correction: qrErrorCorrection.value,
-    is_favorite: qrFavoriteInput.checked
+    is_favorite: qrFavoriteInput.checked,
+    is_dynamic: qrDynamicInput.checked
   };
 }
 
@@ -460,6 +464,22 @@ async function loadQRCode() {
         qrTagsInput.value = qr.tags ? qr.tags.join(', ') : '';
         qrFolderInput.value = qr.folder || '';
         qrFavoriteInput.checked = qr.is_favorite === 1;
+        qrDynamicInput.checked = qr.is_dynamic === 1;
+
+        // Show short URL if dynamic
+        if (qr.is_dynamic === 1 && qr.short_code) {
+          const appUrl = window.location.origin;
+          shortUrlValue.textContent = `${appUrl}/r/${qr.short_code}`;
+          shortUrlDisplay.classList.remove('hidden');
+
+          // For dynamic QR codes, show redirect_url instead of content for URL types
+          if (qr.type === 'url' && qr.redirect_url) {
+            setTimeout(() => {
+              document.getElementById('content-url').value = qr.redirect_url;
+            }, 50);
+          }
+        }
+
         qrColorDark.value = qr.color_dark;
         qrColorDarkText.value = qr.color_dark;
         qrColorLight.value = qr.color_light;

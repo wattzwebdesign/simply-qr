@@ -184,12 +184,22 @@ function createQRCard(qr) {
 
       <div class="qr-card-meta">
         <span class="badge ${badgeClass}">${qr.type.toUpperCase()}</span>
+        ${qr.is_dynamic === 1 ? '<span class="badge badge-dynamic">DYNAMIC</span>' : ''}
         ${qr.scan_count > 0 ? `<span style="font-size: var(--text-xs); color: var(--text-tertiary);">${qr.scan_count} scans</span>` : ''}
       </div>
 
       ${qr.tags && qr.tags.length > 0 ? `
         <div class="qr-card-tags">
           ${qr.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
+        </div>
+      ` : ''}
+
+      ${qr.is_dynamic === 1 && qr.short_code ? `
+        <div style="margin-bottom: var(--space-md); padding: var(--space-sm); background: rgba(16, 185, 129, 0.05); border-radius: var(--radius-sm); border: 1px solid rgba(16, 185, 129, 0.2);">
+          <div style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: var(--space-xs);">Short URL:</div>
+          <div style="font-family: monospace; font-size: var(--text-xs); color: var(--primary-emerald); word-break: break-all;">
+            ${window.location.origin}/r/${qr.short_code}
+          </div>
         </div>
       ` : ''}
 
