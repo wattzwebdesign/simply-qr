@@ -11,6 +11,7 @@ router.use(authenticateToken);
 
 // QR code routes
 router.get('/', qrController.getAllQRCodes);
+router.get('/folders/list', qrController.getFolders);
 router.get('/:id', qrController.getQRCode);
 router.post('/', qrController.createQRCode);
 router.put('/:id', qrController.updateQRCode);
