@@ -946,14 +946,23 @@ select.input-field {
     height: 36px !important;
   }
 
-  /* Hide Create button text on very small screens */
-  @media (max-width: 400px) {
-    .dashboard-header .btn-primary {
-      padding: var(--space-sm) !important;
-    }
-    .dashboard-header .btn-primary span {
-      display: none;
-    }
+  /* Simplify Create button on mobile - just show "+ New" */
+  .dashboard-header .btn-primary span {
+    display: none;
+  }
+
+  .dashboard-header .btn-primary::after {
+    content: "New";
+    margin-left: var(--space-xs);
+  }
+
+  /* Hide profile dropdown avatar, just show chevron */
+  .dashboard-header .profile-avatar {
+    display: none;
+  }
+
+  .dashboard-header .profile-button {
+    padding: var(--space-xs) !important;
   }
 
   /* Dashboard sidebar and content */
@@ -1032,8 +1041,19 @@ select.input-field {
 
   /* QR Frame picker - 2 columns on mobile */
   .qr-frame-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr) !important;
     gap: var(--space-sm);
+  }
+
+  /* Analytics charts - stack on mobile */
+  /* Global analytics page - 3 column device/browser/OS grid */
+  #analytics-content > div[style*="grid-template-columns: repeat(3, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* QR analytics page - 2 column grids */
+  #analytics-content > div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
   }
 
   .qr-frame-card {

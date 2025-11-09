@@ -95,9 +95,9 @@ async function fetchQRCodes() {
   } catch (error) {
     console.error('Fetch error:', error);
     showAlert('Network error. Please refresh.', 'error');
+    loadingState.classList.add('hidden');
+    emptyState.classList.remove('hidden');
   }
-
-  loadingState.classList.add('hidden');
 }
 
 // Apply filters

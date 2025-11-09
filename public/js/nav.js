@@ -113,9 +113,8 @@ function highlightCurrentPage() {
 
     // Add active class to current page
     if (href === currentPath ||
-        (href === '/dashboard' && currentPath === '/') ||
-        (href === '/analytics' && currentPath.startsWith('/analytics')) ||
-        (href === '/qr-analytics' && currentPath.startsWith('/qr-analytics'))) {
+        (href === '/dashboard' && (currentPath === '/' || currentPath === '/dashboard')) ||
+        (href === '/analytics' && (currentPath.startsWith('/analytics') || currentPath.startsWith('/qr-analytics')))) {
       link.classList.add('active');
     }
   });
