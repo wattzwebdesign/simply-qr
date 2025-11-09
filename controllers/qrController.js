@@ -307,25 +307,55 @@ async function updateQRCode(req, res) {
     // Add updated_at timestamp
     updateFields.push('updated_at = CURRENT_TIMESTAMP');
 
-    // Check if we need to regenerate QR code
-    const needsRegeneration = ['content', 'color_dark', 'color_light', 'size', 'error_correction', 'type']
+    // For dynamic QR codes, if content is updated, update redirect_url instead
+    if (existing.is_dynamic && updates.content) {
+      const newRedirectUrl = formatQRContent(
+        existing.type,
+        {
+          content: updates.content,
+          ...updates
+        }
+      );
+
+      // Update redirect_url field
+      if (!updateFields.includes('redirect_url = ?')) {
+        updateFields.push('redirect_url = ?');
+        values.push(newRedirectUrl);
+      } else {
+        // Replace the existing redirect_url value
+        const redirectIndex = updateFields.indexOf('redirect_url = ?');
+        values[redirectIndex] = newRedirectUrl;
+      }
+
+      // Remove content from updates since we're using redirect_url
+      const contentIndex = updateFields.indexOf('content = ?');
+      if (contentIndex !== -1) {
+        updateFields.splice(contentIndex, 1);
+        values.splice(contentIndex, 1);
+      }
+    }
+
+    // Check if we need to regenerate QR code (only for visual changes)
+    const needsRegeneration = ['color_dark', 'color_light', 'size', 'error_correction']
       .some(field => updates.hasOwnProperty(field));
 
     let newFilePath = existing.file_path;
 
     if (needsRegeneration) {
-      // Generate new content
-      const newContent = formatQRContent(
-        updates.type || existing.type,
-        {
-          content: updates.content || existing.content,
-          ...updates
-        }
-      );
+      // For dynamic QR codes, always use the short URL
+      const qrContent = existing.is_dynamic
+        ? `${process.env.APP_URL || 'http://localhost:3000'}/r/${existing.short_code}`
+        : formatQRContent(
+            updates.type || existing.type,
+            {
+              content: updates.content || existing.content,
+              ...updates
+            }
+          );
 
       // Generate new QR code
       newFilePath = await generateQRCode({
-        content: existing.is_dynamic ? `${process.env.APP_URL || 'http://localhost:3000'}/r/${existing.short_code}` : newContent,
+        content: qrContent,
         userId,
         name: updates.name || existing.name,
         colorDark: updates.color_dark || existing.color_dark,

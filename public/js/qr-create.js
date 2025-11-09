@@ -290,17 +290,24 @@ function collectFormData() {
   };
 }
 
-// Generate preview
-generatePreviewBtn.addEventListener('click', async () => {
+// Debounce function for live preview
+let previewTimeout = null;
+let isGeneratingPreview = false;
+
+async function generatePreview(showErrors = true) {
   const data = collectFormData();
 
   if (!data.content) {
-    showAlert('Please fill in the required fields', 'error');
+    if (showErrors) {
+      previewContainer.innerHTML = '<p style="color: var(--text-tertiary);">Fill in the form to see preview</p>';
+    }
     return;
   }
 
-  generatePreviewBtn.disabled = true;
-  generatePreviewBtn.innerHTML = '<div class="spinner"></div> Generating...';
+  if (isGeneratingPreview) return;
+
+  isGeneratingPreview = true;
+  previewContainer.innerHTML = '<div class="spinner" style="margin: 0 auto;"></div><p style="color: var(--text-tertiary); margin-top: var(--space-md);">Generating preview...</p>';
 
   try {
     const response = await fetch('/api/qrcodes/preview', {
@@ -317,17 +324,48 @@ generatePreviewBtn.addEventListener('click', async () => {
     if (result.success) {
       previewContainer.innerHTML = `<img src="${result.preview}" alt="QR Code Preview" style="max-width: 100%; height: auto;">`;
     } else {
-      showAlert('Failed to generate preview', 'error');
+      if (showErrors) {
+        previewContainer.innerHTML = '<p style="color: var(--error);">Failed to generate preview</p>';
+      }
     }
   } catch (error) {
     console.error('Preview error:', error);
-    showAlert('Network error', 'error');
+    if (showErrors) {
+      previewContainer.innerHTML = '<p style="color: var(--error);">Network error</p>';
+    }
   }
 
-  generatePreviewBtn.disabled = false;
-  generatePreviewBtn.innerHTML = '<i data-lucide="eye" style="width: 18px; height: 18px;"></i> Generate Preview';
-  lucide.createIcons();
+  isGeneratingPreview = false;
+}
+
+// Auto-preview with debounce
+function schedulePreview() {
+  clearTimeout(previewTimeout);
+  previewTimeout = setTimeout(() => {
+    generatePreview(false);
+  }, 800); // Wait 800ms after user stops typing
+}
+
+// Generate preview button
+generatePreviewBtn.addEventListener('click', async () => {
+  clearTimeout(previewTimeout);
+  await generatePreview(true);
 });
+
+// Live preview on input changes
+qrNameInput.addEventListener('input', schedulePreview);
+qrTypeSelect.addEventListener('change', () => {
+  updateContentFields();
+  schedulePreview();
+});
+qrColorDark.addEventListener('input', schedulePreview);
+qrColorLight.addEventListener('input', schedulePreview);
+qrSizeInput.addEventListener('input', schedulePreview);
+qrErrorCorrection.addEventListener('change', schedulePreview);
+
+// Listen for content field changes (delegate since they're dynamic)
+contentFields.addEventListener('input', schedulePreview);
+contentFields.addEventListener('change', schedulePreview);
 
 // Form submission
 qrForm.addEventListener('submit', async (e) => {
@@ -503,3 +541,10 @@ async function loadQRCode() {
 // Initialize
 updateContentFields();
 loadQRCode();
+
+// Trigger initial preview after a short delay (for new QR codes)
+if (!isEditMode) {
+  setTimeout(() => {
+    schedulePreview();
+  }, 500);
+}
