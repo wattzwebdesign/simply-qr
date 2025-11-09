@@ -943,6 +943,8 @@ const folderDropdownTrigger = document.getElementById('folder-dropdown-trigger')
 const folderDropdownMenu = document.getElementById('folder-dropdown-menu');
 const folderSearchInput = document.getElementById('folder-search-input');
 const folderDropdownOptions = document.getElementById('folder-dropdown-options');
+const folderClearBtn = document.getElementById('folder-clear-btn');
+const qrFolderInput = document.getElementById('qr-folder');
 
 // Load folders from API
 async function loadFolders() {
@@ -1010,6 +1012,7 @@ function renderFolderOptions(searchTerm = '') {
     option.addEventListener('click', () => {
       const value = option.dataset.value;
       qrFolderInput.value = value;
+      folderClearBtn.style.display = 'flex';
       folderDropdownMenu.classList.remove('open');
       folderSearchInput.value = '';
     });
@@ -1060,6 +1063,28 @@ qrFolderInput.addEventListener('focus', () => {
   folderSearchInput.focus();
   renderFolderOptions();
 });
+
+// Clear button functionality
+folderClearBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  qrFolderInput.value = '';
+  folderClearBtn.style.display = 'none';
+  folderDropdownMenu.classList.remove('open');
+});
+
+// Show/hide clear button based on input value
+qrFolderInput.addEventListener('input', () => {
+  if (qrFolderInput.value.trim()) {
+    folderClearBtn.style.display = 'flex';
+  } else {
+    folderClearBtn.style.display = 'none';
+  }
+});
+
+// Check on page load if folder has value
+if (qrFolderInput.value.trim()) {
+  folderClearBtn.style.display = 'flex';
+}
 
 // Initialize
 updateContentFields();

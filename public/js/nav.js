@@ -40,6 +40,44 @@ function initializeNavigation() {
     });
   }
 
+  // Mobile navigation functionality
+  const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+  const mobileNavMenu = document.getElementById('mobile-nav-menu');
+  const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
+  const mobileNavClose = document.getElementById('mobile-nav-close');
+  const mobileNavLogout = document.getElementById('mobile-nav-logout');
+
+  if (mobileNavToggle && mobileNavMenu && mobileNavOverlay) {
+    // Open mobile menu
+    mobileNavToggle.addEventListener('click', () => {
+      mobileNavMenu.classList.add('open');
+      mobileNavOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+
+    // Close mobile menu
+    const closeMobileMenu = () => {
+      mobileNavMenu.classList.remove('open');
+      mobileNavOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    };
+
+    if (mobileNavClose) {
+      mobileNavClose.addEventListener('click', closeMobileMenu);
+    }
+
+    mobileNavOverlay.addEventListener('click', closeMobileMenu);
+
+    // Mobile logout
+    if (mobileNavLogout) {
+      mobileNavLogout.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      });
+    }
+  }
+
   // Highlight current page in navigation
   highlightCurrentPage();
 }
@@ -47,7 +85,7 @@ function initializeNavigation() {
 function highlightCurrentPage() {
   const currentPath = window.location.pathname;
 
-  // Get all navigation links
+  // Get all navigation links (desktop)
   const navLinks = document.querySelectorAll('.dashboard-header a.btn');
 
   navLinks.forEach(link => {
@@ -67,6 +105,23 @@ function highlightCurrentPage() {
         link.style.color = 'white';
         link.style.borderColor = 'var(--primary-emerald)';
       }
+    }
+  });
+
+  // Highlight mobile nav links
+  const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+  mobileNavLinks.forEach(link => {
+    const href = link.getAttribute('href');
+
+    // Remove existing active class
+    link.classList.remove('active');
+
+    // Add active class to current page
+    if (href === currentPath ||
+        (href === '/dashboard' && currentPath === '/') ||
+        (href === '/analytics' && currentPath.startsWith('/analytics')) ||
+        (href === '/qr-analytics' && currentPath.startsWith('/qr-analytics'))) {
+      link.classList.add('active');
     }
   });
 }

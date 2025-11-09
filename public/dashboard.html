@@ -17,9 +17,53 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+  <!-- Mobile Navigation Overlay -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="mobile-nav-menu" id="mobile-nav-menu">
+    <div class="mobile-nav-header">
+      <div style="display: flex; align-items: center; gap: var(--space-sm);">
+        <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary-emerald), var(--primary-emerald-dark)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white;">
+          <i data-lucide="qr-code" style="width: 20px; height: 20px;"></i>
+        </div>
+        <h2 style="font-size: var(--text-lg); margin: 0;">SimplyQR</h2>
+      </div>
+      <button class="mobile-nav-close" id="mobile-nav-close">
+        <i data-lucide="x" style="width: 24px; height: 24px;"></i>
+      </button>
+    </div>
+    <div class="mobile-nav-links">
+      <a href="/dashboard" class="mobile-nav-link">
+        <i data-lucide="layout-dashboard" style="width: 20px; height: 20px;"></i>
+        Dashboard
+      </a>
+      <a href="/analytics" class="mobile-nav-link">
+        <i data-lucide="bar-chart-2" style="width: 20px; height: 20px;"></i>
+        Analytics
+      </a>
+      <a href="/create" class="mobile-nav-link">
+        <i data-lucide="plus" style="width: 20px; height: 20px;"></i>
+        Create QR Code
+      </a>
+      <div style="margin: var(--space-lg) 0; border-top: 1px solid var(--border-color);"></div>
+      <a href="/profile" class="mobile-nav-link">
+        <i data-lucide="user" style="width: 20px; height: 20px;"></i>
+        Profile Settings
+      </a>
+      <button class="mobile-nav-link" id="mobile-nav-logout" style="border: none; background: none; width: 100%; text-align: left;">
+        <i data-lucide="log-out" style="width: 20px; height: 20px;"></i>
+        Logout
+      </button>
+    </div>
+  </div>
+
   <!-- Dashboard Header -->
   <div class="dashboard-header">
     <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="mobile-nav-toggle" id="mobile-nav-toggle">
+        <i data-lucide="menu" style="width: 24px; height: 24px;"></i>
+      </button>
       <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary-emerald), var(--primary-emerald-dark)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; padding: 10px;">
         <i data-lucide="qr-code" style="width: 28px; height: 28px;"></i>
       </div>
