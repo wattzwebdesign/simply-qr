@@ -125,12 +125,82 @@ async function initializeDatabase() {
         scanned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         ip_address VARCHAR(45),
         user_agent VARCHAR(500),
+        device_type VARCHAR(20),
+        browser VARCHAR(50),
+        os VARCHAR(50),
+        country_code VARCHAR(2),
+        country_name VARCHAR(100),
+        city VARCHAR(100),
+        latitude DECIMAL(10,8),
+        longitude DECIMAL(11,8),
         FOREIGN KEY (qr_code_id) REFERENCES qr_codes(id) ON DELETE CASCADE,
         INDEX idx_qr_code_id (qr_code_id),
-        INDEX idx_scanned_at (scanned_at)
+        INDEX idx_scanned_at (scanned_at),
+        INDEX idx_country_code (country_code),
+        INDEX idx_device_type (device_type)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
     console.log('Scans table ready');
+
+    // Add analytics columns to scans table if they don't exist (for existing databases)
+    try {
+      const [columns] = await connection.query(`
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = 'scans'
+        AND COLUMN_NAME IN ('device_type', 'browser', 'os', 'country_code', 'country_name', 'city', 'latitude', 'longitude')
+      `);
+
+      const existingColumns = columns.map(col => col.COLUMN_NAME);
+
+      if (!existingColumns.includes('device_type')) {
+        await connection.query(`ALTER TABLE scans ADD COLUMN device_type VARCHAR(20)`);
+        console.log('Added device_type column to scans table');
+      }
+
+      if (!existingColumns.includes('browser')) {
+        await connection.query(`ALTER TABLE scans ADD COLUMN browser VARCHAR(50)`);
+        console.log('Added browser column to scans table');
+      }
+
+      if (!existingColumns.includes('os')) {
+        await connection.query(`ALTER TABLE scans ADD COLUMN os VARCHAR(50)`);
+        console.log('Added os column to scans table');
+      }
+
+      if (!existingColumns.includes('country_code')) {
+        await connection.query(`ALTER TABLE scans ADD COLUMN country_code VARCHAR(2)`);
+        await connection.query(`CREATE INDEX idx_country_code ON scans(country_code)`);
+        console.log('Added country_code column to scans table');
+      }
+
+      if (!existingColumns.includes('country_name')) {
+        await connection.query(`ALTER TABLE scans ADD COLUMN country_name VARCHAR(100)`);
+        console.log('Added country_name column to scans table');
+      }
+
+      if (!existingColumns.includes('city')) {
+        await connection.query(`ALTER TABLE scans ADD COLUMN city VARCHAR(100)`);
+        console.log('Added city column to scans table');
+      }
+
+      if (!existingColumns.includes('latitude')) {
+        await connection.query(`ALTER TABLE scans ADD COLUMN latitude DECIMAL(10,8)`);
+        console.log('Added latitude column to scans table');
+      }
+
+      if (!existingColumns.includes('longitude')) {
+        await connection.query(`ALTER TABLE scans ADD COLUMN longitude DECIMAL(11,8)`);
+        console.log('Added longitude column to scans table');
+      }
+
+      if (!existingColumns.includes('device_type')) {
+        await connection.query(`CREATE INDEX idx_device_type ON scans(device_type)`);
+      }
+    } catch (err) {
+      console.log('Analytics columns migration:', err.message);
+    }
 
     connection.release();
     console.log('Database initialization complete');

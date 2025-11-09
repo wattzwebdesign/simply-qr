@@ -1,4 +1,6 @@
 const { getAsync, runAsync } = require('../config/database');
+const UAParser = require('ua-parser-js');
+const geoip = require('geoip-lite');
 
 // Handle redirect for dynamic QR codes
 async function handleRedirect(req, res) {
@@ -117,16 +119,62 @@ async function handleRedirect(req, res) {
 // Track scan analytics
 async function trackScan(qrCodeId, ipAddress, userAgent) {
   try {
+    // Parse user agent
+    const parser = new UAParser(userAgent);
+    const ua = parser.getResult();
+
+    // Determine device type
+    let deviceType = 'desktop';
+    if (ua.device.type === 'mobile') deviceType = 'mobile';
+    else if (ua.device.type === 'tablet') deviceType = 'tablet';
+
+    const browser = ua.browser.name || null;
+    const os = ua.os.name || null;
+
+    // Parse IP for geolocation
+    let countryCode = null;
+    let countryName = null;
+    let city = null;
+    let latitude = null;
+    let longitude = null;
+
+    if (ipAddress && ipAddress !== '::1' && ipAddress !== '127.0.0.1') {
+      const geo = geoip.lookup(ipAddress);
+      if (geo) {
+        countryCode = geo.country || null;
+        countryName = geo.country || null; // geoip-lite doesn't provide full country names, just codes
+        city = geo.city || null;
+        if (geo.ll && geo.ll.length === 2) {
+          latitude = geo.ll[0];
+          longitude = geo.ll[1];
+        }
+      }
+    }
+
     // Increment scan count and update last scanned time
     await runAsync(
       'UPDATE qr_codes SET scan_count = scan_count + 1, last_scanned_at = NOW() WHERE id = ?',
       [qrCodeId]
     );
 
-    // Log scan details
+    // Log scan details with analytics data
     await runAsync(
-      'INSERT INTO scans (qr_code_id, ip_address, user_agent) VALUES (?, ?, ?)',
-      [qrCodeId, ipAddress.substring(0, 45), userAgent.substring(0, 500)]
+      `INSERT INTO scans
+       (qr_code_id, ip_address, user_agent, device_type, browser, os, country_code, country_name, city, latitude, longitude)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        qrCodeId,
+        ipAddress ? ipAddress.substring(0, 45) : null,
+        userAgent ? userAgent.substring(0, 500) : null,
+        deviceType,
+        browser ? browser.substring(0, 50) : null,
+        os ? os.substring(0, 50) : null,
+        countryCode,
+        countryName ? countryName.substring(0, 100) : null,
+        city ? city.substring(0, 100) : null,
+        latitude,
+        longitude
+      ]
     );
 
     console.log(`Scan tracked for QR code ID ${qrCodeId}`);
