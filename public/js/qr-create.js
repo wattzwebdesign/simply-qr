@@ -50,8 +50,9 @@ const qrColorDarkText = document.getElementById('qr-color-dark-text');
 const qrColorLight = document.getElementById('qr-color-light');
 const qrColorLightText = document.getElementById('qr-color-light-text');
 const qrErrorCorrection = document.getElementById('qr-error-correction');
-const qrTopText = document.getElementById('qr-top-text');
-const qrBottomText = document.getElementById('qr-bottom-text');
+const qrFrame = document.getElementById('qr-frame');
+const qrFrameText = document.getElementById('qr-frame-text');
+const frameTextGroup = document.getElementById('frame-text-group');
 const previewContainer = document.getElementById('preview-container');
 const generatePreviewBtn = document.getElementById('generate-preview-btn');
 const alertContainer = document.getElementById('alert-container');
@@ -238,6 +239,31 @@ document.querySelectorAll('.qr-type-card').forEach(card => {
   });
 });
 
+// Visual Frame Picker Handler
+document.querySelectorAll('.qr-frame-card').forEach(card => {
+  card.addEventListener('click', function() {
+    // Remove active class from all cards
+    document.querySelectorAll('.qr-frame-card').forEach(c => c.classList.remove('active'));
+
+    // Add active class to clicked card
+    this.classList.add('active');
+
+    // Update hidden input value
+    const selectedFrame = this.dataset.frame;
+    qrFrame.value = selectedFrame;
+
+    // Show/hide frame text input
+    if (selectedFrame === 'none') {
+      frameTextGroup.style.display = 'none';
+    } else {
+      frameTextGroup.style.display = 'block';
+    }
+
+    // Update preview
+    schedulePreview();
+  });
+});
+
 // Type change handler (for programmatic changes)
 qrTypeSelect.addEventListener('change', updateContentFields);
 
@@ -326,8 +352,8 @@ function collectFormData() {
     error_correction: qrErrorCorrection.value,
     is_favorite: qrFavoriteInput.checked,
     short_code: currentShortCode,  // Include the generated short code
-    top_text: qrTopText.value || null,
-    bottom_text: qrBottomText.value || null
+    frame: qrFrame.value || 'none',
+    frame_text: qrFrameText.value || 'SCAN ME'
   };
 }
 
@@ -335,6 +361,98 @@ function collectFormData() {
 let previewTimeout = null;
 let isGeneratingPreview = false;
 let previewRetryCount = 0;
+
+// Apply frame to QR code canvas
+function applyFrame(qrCanvas, frameType, frameText) {
+  const padding = 40;
+  const textHeight = 50;
+  const qrSize = qrCanvas.width;
+
+  let totalWidth = qrSize + (padding * 2);
+  let totalHeight = qrSize + (padding * 2) + textHeight;
+
+  const framedCanvas = document.createElement('canvas');
+  framedCanvas.width = totalWidth;
+  framedCanvas.height = totalHeight;
+  const ctx = framedCanvas.getContext('2d');
+
+  // Fill background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, totalWidth, totalHeight);
+
+  const centerX = totalWidth / 2;
+  const centerY = (totalHeight - textHeight) / 2;
+
+  // Draw frame based on type
+  switch (frameType) {
+    case 'square':
+      // Black square frame
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(padding - 20, padding - 20, qrSize + 40, qrSize + 40 + textHeight);
+      break;
+
+    case 'rounded':
+      // Rounded black frame
+      ctx.fillStyle = '#000000';
+      ctx.beginPath();
+      ctx.roundRect(padding - 20, padding - 20, qrSize + 40, qrSize + 40 + textHeight, 20);
+      ctx.fill();
+      break;
+
+    case 'circle':
+      // Circle frame
+      const radius = (qrSize + 60) / 2;
+      ctx.fillStyle = '#000000';
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+
+    case 'badge':
+      // Badge with arrow
+      ctx.fillStyle = '#000000';
+      ctx.beginPath();
+      ctx.roundRect(padding - 20, padding - 20, qrSize + 40, qrSize + 40 + textHeight, 12);
+      ctx.fill();
+      // Draw arrow
+      ctx.beginPath();
+      ctx.moveTo(centerX, totalHeight - textHeight + qrSize + 40);
+      ctx.lineTo(centerX - 20, totalHeight - textHeight + qrSize + 20);
+      ctx.lineTo(centerX + 20, totalHeight - textHeight + qrSize + 20);
+      ctx.closePath();
+      ctx.fill();
+      break;
+
+    case 'banner':
+      // Hexagon banner
+      ctx.fillStyle = '#000000';
+      const hexPadding = 30;
+      ctx.beginPath();
+      ctx.moveTo(centerX - qrSize/2 - hexPadding, centerY);
+      ctx.lineTo(centerX - qrSize/2 + hexPadding, padding - 20);
+      ctx.lineTo(centerX + qrSize/2 - hexPadding, padding - 20);
+      ctx.lineTo(centerX + qrSize/2 + hexPadding, centerY);
+      ctx.lineTo(centerX + qrSize/2 - hexPadding, padding + qrSize + 20 + textHeight);
+      ctx.lineTo(centerX - qrSize/2 + hexPadding, padding + qrSize + 20 + textHeight);
+      ctx.closePath();
+      ctx.fill();
+      break;
+  }
+
+  // Draw QR code
+  ctx.drawImage(qrCanvas, padding, padding, qrSize, qrSize);
+
+  // Draw text
+  if (frameText) {
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 24px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(frameText, centerX, padding + qrSize + (textHeight / 2));
+  }
+
+  return framedCanvas;
+}
 
 function generatePreview(showErrors = true) {
   const data = collectFormData();
@@ -381,42 +499,11 @@ function generatePreview(showErrors = true) {
     // Clear preview container
     previewContainer.innerHTML = '';
 
-    // Create wrapper div
-    const wrapper = document.createElement('div');
-    wrapper.style.display = 'flex';
-    wrapper.style.flexDirection = 'column';
-    wrapper.style.alignItems = 'center';
-    wrapper.style.gap = '12px';
-
-    // Add top text if present
-    if (data.top_text) {
-      const topText = document.createElement('div');
-      topText.textContent = data.top_text;
-      topText.style.fontSize = '16px';
-      topText.style.fontWeight = '600';
-      topText.style.color = '#111827';
-      topText.style.textAlign = 'center';
-      wrapper.appendChild(topText);
-    }
-
-    // Create canvas
-    const canvas = document.createElement('canvas');
-    wrapper.appendChild(canvas);
-
-    // Add bottom text if present
-    if (data.bottom_text) {
-      const bottomText = document.createElement('div');
-      bottomText.textContent = data.bottom_text;
-      bottomText.style.fontSize = '14px';
-      bottomText.style.color = '#6b7280';
-      bottomText.style.textAlign = 'center';
-      wrapper.appendChild(bottomText);
-    }
-
-    previewContainer.appendChild(wrapper);
+    // Create canvas for QR code
+    const qrCanvas = document.createElement('canvas');
 
     // Generate QR code client-side
-    QRCode.toCanvas(canvas, shortUrl, {
+    QRCode.toCanvas(qrCanvas, shortUrl, {
       width: data.size || 300,
       margin: 2,
       color: {
@@ -430,7 +517,18 @@ function generatePreview(showErrors = true) {
         if (showErrors) {
           previewContainer.innerHTML = '<p style="color: var(--error);">Failed to generate preview</p>';
         }
+        isGeneratingPreview = false;
+        return;
       }
+
+      // Apply frame if not "none"
+      if (data.frame && data.frame !== 'none') {
+        const framedCanvas = applyFrame(qrCanvas, data.frame, data.frame_text);
+        previewContainer.appendChild(framedCanvas);
+      } else {
+        previewContainer.appendChild(qrCanvas);
+      }
+
       isGeneratingPreview = false;
     });
 
@@ -463,45 +561,11 @@ async function createDownloadCanvas() {
   const appUrl = window.location.origin;
   const shortUrl = `${appUrl}/r/${currentShortCode}`;
 
-  // Create a temporary container
-  const tempContainer = document.createElement('div');
-  tempContainer.style.position = 'absolute';
-  tempContainer.style.left = '-9999px';
-  document.body.appendChild(tempContainer);
-
-  // Calculate dimensions
-  const qrSize = 600; // High resolution
-  const padding = 40;
-  const topTextHeight = data.top_text ? 50 : 0;
-  const bottomTextHeight = data.bottom_text ? 40 : 0;
-  const totalHeight = qrSize + topTextHeight + bottomTextHeight + (padding * 2);
-  const totalWidth = qrSize + (padding * 2);
-
-  // Create final canvas
-  const finalCanvas = document.createElement('canvas');
-  finalCanvas.width = totalWidth;
-  finalCanvas.height = totalHeight;
-  const ctx = finalCanvas.getContext('2d');
-
-  // Fill background
-  ctx.fillStyle = data.color_light || '#ffffff';
-  ctx.fillRect(0, 0, totalWidth, totalHeight);
-
-  // Add top text
-  let currentY = padding;
-  if (data.top_text) {
-    ctx.fillStyle = '#111827';
-    ctx.font = 'bold 32px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(data.top_text, totalWidth / 2, currentY + 30);
-    currentY += topTextHeight;
-  }
-
-  // Generate QR code
+  // Generate QR code at high resolution
   const qrCanvas = document.createElement('canvas');
   await new Promise((resolve, reject) => {
     QRCode.toCanvas(qrCanvas, shortUrl, {
-      width: qrSize,
+      width: 600,
       margin: 2,
       color: {
         dark: data.color_dark || '#000000',
@@ -514,20 +578,94 @@ async function createDownloadCanvas() {
     });
   });
 
-  // Draw QR code on final canvas
-  ctx.drawImage(qrCanvas, padding, currentY, qrSize, qrSize);
-  currentY += qrSize;
-
-  // Add bottom text
-  if (data.bottom_text) {
-    ctx.fillStyle = '#6b7280';
-    ctx.font = '24px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(data.bottom_text, totalWidth / 2, currentY + 30);
+  // Apply frame if selected
+  if (data.frame && data.frame !== 'none') {
+    return applyFrameHighRes(qrCanvas, data.frame, data.frame_text);
   }
 
-  document.body.removeChild(tempContainer);
-  return finalCanvas;
+  return qrCanvas;
+}
+
+// High-resolution frame application for downloads
+function applyFrameHighRes(qrCanvas, frameType, frameText) {
+  const padding = 80;
+  const textHeight = 100;
+  const qrSize = qrCanvas.width;
+
+  let totalWidth = qrSize + (padding * 2);
+  let totalHeight = qrSize + (padding * 2) + textHeight;
+
+  const framedCanvas = document.createElement('canvas');
+  framedCanvas.width = totalWidth;
+  framedCanvas.height = totalHeight;
+  const ctx = framedCanvas.getContext('2d');
+
+  // Fill background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, totalWidth, totalHeight);
+
+  const centerX = totalWidth / 2;
+  const centerY = (totalHeight - textHeight) / 2;
+
+  // Draw frame based on type
+  ctx.fillStyle = '#000000';
+  switch (frameType) {
+    case 'square':
+      ctx.fillRect(padding - 40, padding - 40, qrSize + 80, qrSize + 80 + textHeight);
+      break;
+
+    case 'rounded':
+      ctx.beginPath();
+      ctx.roundRect(padding - 40, padding - 40, qrSize + 80, qrSize + 80 + textHeight, 40);
+      ctx.fill();
+      break;
+
+    case 'circle':
+      const radius = (qrSize + 120) / 2;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+
+    case 'badge':
+      ctx.beginPath();
+      ctx.roundRect(padding - 40, padding - 40, qrSize + 80, qrSize + 80 + textHeight, 24);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(centerX, totalHeight - textHeight + qrSize + 80);
+      ctx.lineTo(centerX - 40, totalHeight - textHeight + qrSize + 40);
+      ctx.lineTo(centerX + 40, totalHeight - textHeight + qrSize + 40);
+      ctx.closePath();
+      ctx.fill();
+      break;
+
+    case 'banner':
+      const hexPadding = 60;
+      ctx.beginPath();
+      ctx.moveTo(centerX - qrSize/2 - hexPadding, centerY);
+      ctx.lineTo(centerX - qrSize/2 + hexPadding, padding - 40);
+      ctx.lineTo(centerX + qrSize/2 - hexPadding, padding - 40);
+      ctx.lineTo(centerX + qrSize/2 + hexPadding, centerY);
+      ctx.lineTo(centerX + qrSize/2 - hexPadding, padding + qrSize + 40 + textHeight);
+      ctx.lineTo(centerX - qrSize/2 + hexPadding, padding + qrSize + 40 + textHeight);
+      ctx.closePath();
+      ctx.fill();
+      break;
+  }
+
+  // Draw QR code
+  ctx.drawImage(qrCanvas, padding, padding, qrSize, qrSize);
+
+  // Draw text
+  if (frameText) {
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 48px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(frameText, centerX, padding + qrSize + (textHeight / 2));
+  }
+
+  return framedCanvas;
 }
 
 // PNG Download
@@ -566,84 +704,16 @@ downloadJpgBtn.addEventListener('click', async () => {
   }
 });
 
-// SVG Download
+// SVG Download - Convert canvas to SVG with embedded image
 downloadSvgBtn.addEventListener('click', async () => {
   try {
-    const data = collectFormData();
-    const appUrl = window.location.origin;
-    const shortUrl = `${appUrl}/r/${currentShortCode}`;
+    const canvas = await createDownloadCanvas();
+    const imgData = canvas.toDataURL('image/png');
 
-    // Use QRCode library to generate data URL
-    const qrDataUrl = await QRCode.toString(shortUrl, {
-      type: 'svg',
-      width: 600,
-      margin: 2,
-      color: {
-        dark: data.color_dark || '#000000',
-        light: data.color_light || '#ffffff'
-      },
-      errorCorrectionLevel: data.error_correction || 'Q'
-    });
-
-    // Add text elements to SVG if needed
-    let svgContent = qrDataUrl;
-
-    // Basic implementation - wrap QR in SVG with text
-    if (data.top_text || data.bottom_text) {
-      const parser = new DOMParser();
-      const svgDoc = parser.parseFromString(qrDataUrl, 'image/svg+xml');
-      const svg = svgDoc.documentElement;
-
-      // Adjust viewBox for text
-      const viewBox = svg.getAttribute('viewBox').split(' ');
-      let newHeight = parseInt(viewBox[3]);
-      let yOffset = 0;
-
-      if (data.top_text) {
-        yOffset = 60;
-        newHeight += 60;
-      }
-      if (data.bottom_text) {
-        newHeight += 50;
-      }
-
-      svg.setAttribute('viewBox', `0 0 ${viewBox[2]} ${newHeight}`);
-
-      // Move existing QR down if top text exists
-      if (data.top_text) {
-        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        g.setAttribute('transform', `translate(0, ${yOffset})`);
-        while (svg.firstChild) {
-          g.appendChild(svg.firstChild);
-        }
-        svg.appendChild(g);
-
-        // Add top text
-        const topText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        topText.setAttribute('x', viewBox[2] / 2);
-        topText.setAttribute('y', '40');
-        topText.setAttribute('text-anchor', 'middle');
-        topText.setAttribute('font-size', '32');
-        topText.setAttribute('font-weight', 'bold');
-        topText.setAttribute('fill', '#111827');
-        topText.textContent = data.top_text;
-        svg.insertBefore(topText, svg.firstChild);
-      }
-
-      // Add bottom text
-      if (data.bottom_text) {
-        const bottomText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        bottomText.setAttribute('x', viewBox[2] / 2);
-        bottomText.setAttribute('y', newHeight - 20);
-        bottomText.setAttribute('text-anchor', 'middle');
-        bottomText.setAttribute('font-size', '24');
-        bottomText.setAttribute('fill', '#6b7280');
-        bottomText.textContent = data.bottom_text;
-        svg.appendChild(bottomText);
-      }
-
-      svgContent = new XMLSerializer().serializeToString(svg);
-    }
+    const svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${canvas.width}" height="${canvas.height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <image width="${canvas.width}" height="${canvas.height}" xlink:href="${imgData}"/>
+</svg>`;
 
     const blob = new Blob([svgContent], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
@@ -686,8 +756,7 @@ downloadPdfBtn.addEventListener('click', async () => {
 
 // Live preview on input changes
 qrNameInput.addEventListener('input', schedulePreview);
-qrTopText.addEventListener('input', schedulePreview);
-qrBottomText.addEventListener('input', schedulePreview);
+qrFrameText.addEventListener('input', schedulePreview);
 qrTypeSelect.addEventListener('change', () => {
   updateContentFields();
   schedulePreview();
@@ -865,9 +934,24 @@ async function loadQRCode() {
         qrColorLightText.value = qr.color_light;
         qrErrorCorrection.value = qr.error_correction;
 
-        // Load text fields
-        if (qr.top_text) qrTopText.value = qr.top_text;
-        if (qr.bottom_text) qrBottomText.value = qr.bottom_text;
+        // Load frame settings
+        if (qr.frame) {
+          qrFrame.value = qr.frame;
+
+          // Update visual frame picker
+          document.querySelectorAll('.qr-frame-card').forEach(card => {
+            card.classList.remove('active');
+            if (card.dataset.frame === qr.frame) {
+              card.classList.add('active');
+            }
+          });
+
+          // Show/hide frame text input
+          if (qr.frame !== 'none') {
+            frameTextGroup.style.display = 'block';
+            if (qr.frame_text) qrFrameText.value = qr.frame_text;
+          }
+        }
 
         // Generate preview after loading data
         setTimeout(() => {

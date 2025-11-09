@@ -186,24 +186,63 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="qr-top-text">Top Text (optional)</label>
-            <input
-              type="text"
-              id="qr-top-text"
-              class="input-field"
-              placeholder="Text above QR code"
-              maxlength="50"
-            >
+            <label class="form-label">Frame Style (optional)</label>
+            <p class="form-helper" style="margin-top: 0;">Add a decorative frame around your QR code</p>
+            <div class="qr-frame-grid">
+              <div class="qr-frame-card active" data-frame="none">
+                <div class="frame-preview frame-none">
+                  <div class="frame-qr-mini"></div>
+                </div>
+                <span class="qr-frame-label">None</span>
+              </div>
+              <div class="qr-frame-card" data-frame="square">
+                <div class="frame-preview frame-square">
+                  <div class="frame-qr-mini"></div>
+                  <div class="frame-text">SCAN ME</div>
+                </div>
+                <span class="qr-frame-label">Square</span>
+              </div>
+              <div class="qr-frame-card" data-frame="rounded">
+                <div class="frame-preview frame-rounded">
+                  <div class="frame-qr-mini"></div>
+                  <div class="frame-text">SCAN ME</div>
+                </div>
+                <span class="qr-frame-label">Rounded</span>
+              </div>
+              <div class="qr-frame-card" data-frame="circle">
+                <div class="frame-preview frame-circle">
+                  <div class="frame-qr-mini"></div>
+                  <div class="frame-text">SCAN ME</div>
+                </div>
+                <span class="qr-frame-label">Circle</span>
+              </div>
+              <div class="qr-frame-card" data-frame="badge">
+                <div class="frame-preview frame-badge">
+                  <div class="frame-qr-mini"></div>
+                  <div class="frame-text">SCAN ME</div>
+                </div>
+                <span class="qr-frame-label">Badge</span>
+              </div>
+              <div class="qr-frame-card" data-frame="banner">
+                <div class="frame-preview frame-banner">
+                  <div class="frame-qr-mini"></div>
+                  <div class="frame-text">SCAN ME</div>
+                </div>
+                <span class="qr-frame-label">Banner</span>
+              </div>
+            </div>
+            <input type="hidden" id="qr-frame" value="none">
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="qr-bottom-text">Bottom Text (optional)</label>
+          <div class="form-group" id="frame-text-group" style="display: none;">
+            <label class="form-label" for="qr-frame-text">Frame Text</label>
             <input
               type="text"
-              id="qr-bottom-text"
+              id="qr-frame-text"
               class="input-field"
-              placeholder="Text below QR code"
-              maxlength="50"
+              placeholder="e.g., SCAN ME"
+              maxlength="30"
+              value="SCAN ME"
             >
           </div>
 
