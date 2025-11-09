@@ -27,11 +27,25 @@ async function initializeDatabase() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
+        first_name VARCHAR(255),
+        last_name VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_email (email)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
     console.log('Users table ready');
+
+    // Add first_name and last_name columns if they don't exist (for existing databases)
+    try {
+      await connection.query(`
+        ALTER TABLE users
+        ADD COLUMN IF NOT EXISTS first_name VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS last_name VARCHAR(255)
+      `);
+    } catch (err) {
+      // Columns may already exist, ignore error
+      console.log('User name columns already exist or not needed');
+    }
 
     // Create qr_codes table
     await connection.query(`

@@ -10,6 +10,7 @@ require('./config/database');
 const authRoutes = require('./routes/auth');
 const qrCodeRoutes = require('./routes/qrcodes');
 const redirectRoutes = require('./routes/redirect');
+const usersRoutes = require('./routes/users');
 
 // Create Express app
 const app = express();
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/qrcodes', qrCodeRoutes);
+app.use('/api/users', usersRoutes);
 
 // Public redirect routes (for dynamic QR codes)
 app.use('/r', redirectRoutes);
@@ -52,6 +54,11 @@ app.get('/create', (req, res) => {
 // Edit QR code route
 app.get('/edit/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'create.html'));
+});
+
+// Profile route
+app.get('/profile', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 
 // 404 handler
