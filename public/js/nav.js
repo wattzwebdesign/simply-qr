@@ -1,11 +1,6 @@
 // Global Navigation Component
 // This file handles the consistent navigation header across all pages
 
-// Initialize navigation on page load
-document.addEventListener('DOMContentLoaded', () => {
-  initializeNavigation();
-});
-
 function initializeNavigation() {
   // Get user info
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -75,3 +70,6 @@ function highlightCurrentPage() {
     }
   });
 }
+
+// Initialize navigation immediately
+initializeNavigation();
