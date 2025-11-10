@@ -777,19 +777,24 @@ qrForm.addEventListener('submit', async (e) => {
 
 // Load existing QR code if editing
 async function loadQRCode() {
+  console.log('loadQRCode called, isEditMode:', isEditMode, 'qrId:', qrId);
   if (!isEditMode) return;
 
   try {
+    console.log('Fetching QR code data for ID:', qrId);
     const response = await fetch(`/api/qrcodes/${qrId}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
 
+    console.log('Response status:', response.status);
     const data = await response.json();
+    console.log('Response data:', data);
 
     if (data.success) {
       const qr = data.qrcode;
+      console.log('Loading QR code:', qr);
 
       // Populate basic fields
       qrNameInput.value = qr.name;
