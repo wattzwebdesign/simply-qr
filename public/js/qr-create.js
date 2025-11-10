@@ -897,6 +897,11 @@ async function loadQRCode() {
         qrFolderInput.value = qr.folder || '';
         qrFavoriteInput.checked = qr.is_favorite === 1;
 
+        // Show clear button if folder has value
+        if (qr.folder && qr.folder.trim()) {
+          folderClearBtn.style.display = 'flex';
+        }
+
         // Set current short code for editing (all QRs are dynamic now)
         if (qr.short_code) {
           currentShortCode = qr.short_code;
