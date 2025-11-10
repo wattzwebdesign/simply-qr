@@ -21,6 +21,7 @@ npx browserify -r qrcode -o public/js/qrcode-bundle.js --standalone QRCode
 # Initialize database
 echo "Initializing database..."
 node -e "
+require('dotenv').config();
 const { initializeDatabase } = require('./config/database');
 initializeDatabase()
   .then(() => {
