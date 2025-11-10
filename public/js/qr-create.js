@@ -957,7 +957,6 @@ const folderDropdownMenu = document.getElementById('folder-dropdown-menu');
 const folderSearchInput = document.getElementById('folder-search-input');
 const folderDropdownOptions = document.getElementById('folder-dropdown-options');
 const folderClearBtn = document.getElementById('folder-clear-btn');
-const qrFolderInput = document.getElementById('qr-folder');
 
 // Load folders from API
 async function loadFolders() {
