@@ -269,5 +269,6 @@ module.exports = {
   query,
   runAsync,
   getAsync,
-  allAsync
+  allAsync,
+  initializeDatabase
 };
