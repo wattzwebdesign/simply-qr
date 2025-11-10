@@ -227,7 +227,8 @@ qrColorLightText.addEventListener('input', (e) => {
 
 // Visual Type Picker Handler
 document.querySelectorAll('.qr-type-card').forEach(card => {
-  card.addEventListener('click', function() {
+  const handleTypeSelect = function(e) {
+    e.preventDefault();
     // Remove active class from all cards
     document.querySelectorAll('.qr-type-card').forEach(c => c.classList.remove('active'));
 
@@ -243,12 +244,16 @@ document.querySelectorAll('.qr-type-card').forEach(card => {
 
     // Re-initialize Lucide icons
     lucide.createIcons();
-  });
+  };
+
+  card.addEventListener('click', handleTypeSelect);
+  card.addEventListener('touchend', handleTypeSelect);
 });
 
 // Visual Frame Picker Handler
 document.querySelectorAll('.qr-frame-card').forEach(card => {
-  card.addEventListener('click', function() {
+  const handleFrameSelect = function(e) {
+    e.preventDefault();
     // Remove active class from all cards
     document.querySelectorAll('.qr-frame-card').forEach(c => c.classList.remove('active'));
 
@@ -268,7 +273,10 @@ document.querySelectorAll('.qr-frame-card').forEach(card => {
 
     // Update preview
     schedulePreview();
-  });
+  };
+
+  card.addEventListener('click', handleFrameSelect);
+  card.addEventListener('touchend', handleFrameSelect);
 });
 
 // Type change handler (for programmatic changes)
@@ -1007,15 +1015,20 @@ function renderFolderOptions(searchTerm = '') {
   folderDropdownOptions.innerHTML = html;
   lucide.createIcons();
 
-  // Add click handlers
+  // Add click handlers (supports both click and touch)
   document.querySelectorAll('.folder-dropdown-option').forEach(option => {
-    option.addEventListener('click', () => {
+    const handleSelect = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       const value = option.dataset.value;
       qrFolderInput.value = value;
       folderClearBtn.style.display = 'flex';
       folderDropdownMenu.classList.remove('open');
       folderSearchInput.value = '';
-    });
+    };
+
+    option.addEventListener('click', handleSelect);
+    option.addEventListener('touchend', handleSelect);
   });
 }
 
