@@ -1,6 +1,19 @@
 // Global Navigation Component
 // This file handles the consistent navigation header across all pages
 
+// Expose navigation functions on a global object
+window.navFunctions = {
+  createIcons: () => {
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      try {
+        lucide.createIcons();
+      } catch (error) {
+        console.error('Error initializing Lucide icons:', error);
+      }
+    }
+  }
+};
+
 // Load navigation HTML includes
 async function loadNavigationIncludes() {
   // Load header if placeholder exists
@@ -31,14 +44,8 @@ async function loadNavigationIncludes() {
     }
   }
 
-  // Initialize Lucide icons once after all HTML is loaded
-  if (typeof lucide !== 'undefined' && lucide.createIcons) {
-    try {
-      lucide.createIcons();
-    } catch (error) {
-      console.error('Error initializing Lucide icons:', error);
-    }
-  }
+  // Initialize Lucide icons for the static parts of the nav
+  window.navFunctions.createIcons();
 }
 
 function initializeNavigation() {

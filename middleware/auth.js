@@ -9,6 +9,9 @@ function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
+  console.log('Auth middleware: Token received:', token);
+  console.log('Auth middleware: JWT_SECRET used:', JWT_SECRET);
+
   if (!token) {
     return res.status(401).json({
       success: false,
@@ -20,6 +23,7 @@ function authenticateToken(req, res, next) {
   // Verify token
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
+      console.error('Auth middleware: JWT verification failed:', err);
       return res.status(403).json({
         success: false,
         error: 'Invalid or expired token',

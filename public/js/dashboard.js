@@ -194,12 +194,8 @@ function renderQRCodes() {
     `;
 
     qrGrid.innerHTML = html;
-    try {
-      if (typeof lucide !== 'undefined' && lucide.createIcons) {
-        lucide.createIcons();
-      }
-    } catch (error) {
-      console.error('Lucide icons error:', error);
+    if (window.navFunctions && typeof window.navFunctions.createIcons === 'function') {
+      window.navFunctions.createIcons();
     }
     generateQRCodesOnCanvas();
     attachCardEventListeners();
@@ -262,12 +258,8 @@ function renderQRCodes() {
   qrGrid.innerHTML = html;
 
   // Re-initialize Lucide icons
-  try {
-    if (typeof lucide !== 'undefined' && lucide.createIcons) {
-      lucide.createIcons();
-    }
-  } catch (error) {
-    console.error('Lucide icons error:', error);
+  if (window.navFunctions && typeof window.navFunctions.createIcons === 'function') {
+    window.navFunctions.createIcons();
   }
 
   // Generate QR codes on canvases
