@@ -44,5 +44,6 @@ echo "Deployment completed successfully!"
 echo "======================================"
 echo "Starting server on port ${PORT:-3323}..."
 
-# Start the server
-exec node server.js
+# Note: PM2 should be configured to run start.sh or "node server.js" directly
+# This deploy script is for initial deployment only
+echo "Deployment complete. Make sure PM2 is running 'node server.js' or 'start.sh'"
